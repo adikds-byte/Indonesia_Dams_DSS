@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dam DSS Pro v5.2 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
+    <title>Dam DSS Pro v5.2.1 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -196,6 +196,19 @@
             header button, header select { font-size: 8.3px !important; padding-left: 4px !important; padding-right: 4px !important; }
             header button i, header select i { font-size: 8.5px !important; }
         }
+        /* [v5.2.1 FIX] Tombol aksi melayang: collapse lebar sungguhan via calc(100vw) dinamis (bukan transform offscreen) agar TIDAK terpotong di layar kecil manapun */
+        #floatingButtonsGroup {
+            max-width: 0; opacity: 0; overflow: hidden; pointer-events: none;
+            transition: max-width 0.4s ease, opacity 0.25s ease;
+        }
+        #floatingButtonsGroup.ga-expanded {
+            max-width: min(320px, calc(100vw - 112px)); opacity: 1; pointer-events: auto;
+            overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        #floatingButtonsGroup.ga-expanded::-webkit-scrollbar { display: none; height: 0; }
+        @media (min-width: 640px) {
+            #floatingButtonsGroup.ga-expanded { max-width: min(420px, calc(100vw - 156px)); }
+        }
         /* ============ RESPONSIVE v5.0 (SMARTPHONE & TABLET) ============ */
         @media (max-width: 1024px) {
             .hud-window { width: min(400px, calc(100vw - 20px)) !important; }
@@ -213,7 +226,8 @@
             div[id$="Modal"] > div { max-height: calc(100vh - 1.2rem) !important; overflow-y: auto; overscroll-behavior: contain; }
             #globalActionButtons { bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important; right: 8px !important; }
             #floatingButtonsGroup { gap: 6px !important; }
-            #floatingButtonsGroup button { height: 2.4rem !important; width: 2.4rem !important; }
+            #floatingButtonsGroup.ga-expanded { max-width: min(290px, calc(100vw - 100px)) !important; }
+            #floatingButtonsGroup button { height: 2.3rem !important; width: 2.3rem !important; }
             #polaOperasiSection { padding: 12px !important; }
             #polaOperasiTableWrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-height: none; }
             #polaOperasiTableWrap table { font-size: 10px !important; }
@@ -1313,39 +1327,37 @@
     </div>
 
     <!-- FLOATING ACTION BUTTONS -->
-    <div id="globalActionButtons" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] pointer-events-none">
-        <div class="flex flex-row flex-nowrap items-center gap-2 sm:gap-3 pointer-events-auto relative w-max ml-auto mt-auto">
-            <div id="floatingButtonsGroup" class="flex flex-row flex-nowrap items-center gap-2 sm:gap-3 transition-all duration-500 ease-in-out transform origin-right translate-x-0 opacity-100 pr-[3.5rem] sm:pr-[4.5rem]">
-                <button type="button" onclick="toggleHydrologyHUD()" class="bg-cyan-600 hover:bg-cyan-500 text-white border border-cyan-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_18px_rgba(6,182,212,0.7)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Buka HUD Operasi Waduk & Spillway">
-                    <i class="fa-solid fa-gauge-high text-sm text-cyan-100"></i>
-                </button>
-                <button type="button" onclick="openStudioPro()" class="bg-teal-600 hover:bg-teal-500 text-white border border-teal-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Studio Analisis Profesional (Routing, Stabilitas, AHP, Monte Carlo, CBA)">
-                    <i class="fa-solid fa-microscope text-sm"></i>
-                </button>
-                <button type="button" onclick="location.reload()" class="bg-rose-600 hover:bg-rose-500 text-white border border-rose-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Refresh Dasbor">
-                    <i class="fa-solid fa-rotate-right text-sm"></i>
-                </button>
-                <button type="button" onclick="openSeismicRadarModal()" class="bg-red-600 hover:bg-red-500 text-white border border-red-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.6)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Monitoring Seismik & Sesar Aktif">
-                    <i class="fa-solid fa-house-crack text-sm"></i>
-                </button>
-                <button type="button" onclick="openScenarioModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Bandingkan Skenario">
-                    <i class="fa-solid fa-code-compare text-sm"></i>
-                </button>
-                <button type="button" onclick="triggerAnalisisAlgoritma()" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white border border-fuchsia-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Render Simulasi Dinamis">
-                    <i class="fa-solid fa-microchip text-sm"></i>
-                </button>
-                <button type="button" onclick="activateScreensaverManual(event)" class="bg-blue-600 hover:bg-blue-500 text-white border border-blue-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Screensaver 3D Earth">
-                    <i class="fa-solid fa-desktop text-sm"></i>
-                </button>
-                <button type="button" onclick="toggleFloatingChatbot()" class="bg-gradient-to-tr from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border border-cyan-300 h-11 w-11 sm:h-13 sm:w-13 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-110 relative cursor-pointer shrink-0" title="JARVIS Dam DSS AI">
-                    <div class="h-2.5 w-2.5 bg-white rounded-full absolute top-0.5 right-0.5 animate-ping border border-slate-950"></div>
-                    <i id="botToggleIcon" class="fa-solid fa-robot text-base sm:text-lg"></i>
-                </button>
-            </div>
-            <button type="button" onclick="toggleFloatingButtons()" class="absolute right-0 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-md flex items-center justify-center transition-transform hover:scale-110 z-50 shrink-0 cursor-pointer">
-                <i id="toggleFloatingIcon" class="fa-solid fa-angles-right text-xs"></i>
+    <div id="globalActionButtons" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-row flex-nowrap items-center gap-2 sm:gap-3 pointer-events-none">
+        <div id="floatingButtonsGroup" class="flex flex-row flex-nowrap items-center gap-2 sm:gap-3 pointer-events-none">
+            <button type="button" onclick="toggleHydrologyHUD()" class="bg-cyan-600 hover:bg-cyan-500 text-white border border-cyan-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_18px_rgba(6,182,212,0.7)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Buka HUD Operasi Waduk & Spillway">
+                <i class="fa-solid fa-gauge-high text-sm text-cyan-100"></i>
+            </button>
+            <button type="button" onclick="openStudioPro()" class="bg-teal-600 hover:bg-teal-500 text-white border border-teal-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Studio Analisis Profesional (Routing, Stabilitas, AHP, Monte Carlo, CBA)">
+                <i class="fa-solid fa-microscope text-sm"></i>
+            </button>
+            <button type="button" onclick="location.reload()" class="bg-rose-600 hover:bg-rose-500 text-white border border-rose-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Refresh Dasbor">
+                <i class="fa-solid fa-rotate-right text-sm"></i>
+            </button>
+            <button type="button" onclick="openSeismicRadarModal()" class="bg-red-600 hover:bg-red-500 text-white border border-red-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.6)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Monitoring Seismik & Sesar Aktif">
+                <i class="fa-solid fa-house-crack text-sm"></i>
+            </button>
+            <button type="button" onclick="openScenarioModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Bandingkan Skenario">
+                <i class="fa-solid fa-code-compare text-sm"></i>
+            </button>
+            <button type="button" onclick="triggerAnalisisAlgoritma()" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white border border-fuchsia-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Render Simulasi Dinamis">
+                <i class="fa-solid fa-microchip text-sm"></i>
+            </button>
+            <button type="button" onclick="activateScreensaverManual(event)" class="bg-blue-600 hover:bg-blue-500 text-white border border-blue-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Screensaver 3D Earth">
+                <i class="fa-solid fa-desktop text-sm"></i>
             </button>
         </div>
+        <button type="button" id="toggleFloatingBtn" onclick="toggleFloatingButtons()" class="pointer-events-auto bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 h-8 w-8 sm:h-9 sm:w-9 rounded-full shadow-md flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Buka/Tutup menu aksi">
+            <i id="toggleFloatingIcon" class="fa-solid fa-angles-left text-xs"></i>
+        </button>
+        <button type="button" onclick="toggleFloatingChatbot()" class="pointer-events-auto bg-gradient-to-tr from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white border border-cyan-300 h-11 w-11 sm:h-13 sm:w-13 rounded-full shadow-xl flex items-center justify-center transition-transform hover:scale-110 relative cursor-pointer shrink-0" title="JARVIS Dam DSS AI">
+            <div class="h-2.5 w-2.5 bg-white rounded-full absolute top-0.5 right-0.5 animate-ping border border-slate-950"></div>
+            <i id="botToggleIcon" class="fa-solid fa-robot text-base sm:text-lg"></i>
+        </button>
     </div>
 
     <!-- ==================== STUDIO ANALISIS PROFESIONAL DAM DSS ==================== -->
@@ -1502,7 +1514,7 @@
 
             </div>
             <div class="bg-slate-900 border-x border-b border-cyan-800/60 rounded-b-2xl p-2 text-center">
-                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.2) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
+                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.2.1) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
             </div>
         </div>
     </div>
@@ -5074,7 +5086,7 @@ const DAM_DSS_PRO = {
         doc.text(`Tingkat Bahaya Seismik: ${currentDam.faultName} (PGA ${currentDam.pgaDesign}g)`, 14, 126);
 
         doc.setTextColor(52, 211, 153); doc.setFontSize(8);
-        doc.text("Dicetak melalui DAM-DSS Pro v5.2: " + new Date().toLocaleString('id-ID'), 14, H - 18);
+        doc.text("Dicetak melalui DAM-DSS Pro v5.2.1: " + new Date().toLocaleString('id-ID'), 14, H - 18);
         
         doc.addPage();
         // Page 2: Summary Table
@@ -5785,15 +5797,26 @@ function toggleFloatingChatbot() {
 }
 
 function toggleFloatingButtons() {
+    // [v5.2.1 FIX] collapse lebar sungguhan via class ga-expanded (bukan translate offscreen) agar tidak terpotong di smartphone
     const grp = document.getElementById('floatingButtonsGroup');
     const icon = document.getElementById('toggleFloatingIcon');
-    if (grp.classList.contains('translate-x-[150%]')) {
-        grp.classList.remove('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
-        grp.classList.add('translate-x-0', 'opacity-100');
+    const expanded = grp.classList.toggle('ga-expanded');
+    icon.className = expanded ? 'fa-solid fa-angles-right text-xs' : 'fa-solid fa-angles-left text-xs';
+    try { sessionStorage.setItem('dam_fab_expanded', expanded ? '1' : '0'); } catch (e) {}
+}
+
+function initFloatingButtonsDefault() {
+    // Default: rapat/collapsed di semua ukuran layar supaya tidak terpotong; ingat pilihan user dalam sesi ini
+    const grp = document.getElementById('floatingButtonsGroup');
+    const icon = document.getElementById('toggleFloatingIcon');
+    if (!grp || !icon) return;
+    let wantExpand = false;
+    try { wantExpand = sessionStorage.getItem('dam_fab_expanded') === '1'; } catch (e) {}
+    if (wantExpand) {
+        grp.classList.add('ga-expanded');
         icon.className = 'fa-solid fa-angles-right text-xs';
     } else {
-        grp.classList.remove('translate-x-0', 'opacity-100');
-        grp.classList.add('translate-x-[150%]', 'opacity-0', 'pointer-events-none');
+        grp.classList.remove('ga-expanded');
         icon.className = 'fa-solid fa-angles-left text-xs';
     }
 }
@@ -6405,6 +6428,7 @@ function initInteractiveTooltips() {
 }
 
 window.onload = () => {
+    initFloatingButtonsDefault();
     initInteractiveTooltips();
     renderDamGisLayers();
     initCharts();
