@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dam DSS Pro v5.0 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
+    <title>Dam DSS Pro v5.1 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -191,6 +191,11 @@
         }
 
 
+
+        @media (max-width: 480px) {
+            header button, header select { font-size: 8.3px !important; padding-left: 4px !important; padding-right: 4px !important; }
+            header button i, header select i { font-size: 8.5px !important; }
+        }
         /* ============ RESPONSIVE v5.0 (SMARTPHONE & TABLET) ============ */
         @media (max-width: 1024px) {
             .hud-window { width: min(400px, calc(100vw - 20px)) !important; }
@@ -450,26 +455,26 @@
     <div id="mainDashboardInterface" class="w-full flex flex-col justify-between flex-1 gap-4">
         
         <!-- HEADER SECTION -->
-        <header class="w-full bg-[#030712]/95 backdrop-blur-md p-2 sm:py-2.5 sm:px-3.5 rounded-2xl border-2 border-slate-800 flex flex-col xl:flex-row items-center justify-between gap-2.5 shadow-2xl select-none min-h-[92px] relative z-30">
+        <header class="w-full bg-[#030712]/95 backdrop-blur-md p-2 sm:py-2.5 sm:px-3.5 rounded-2xl border-2 border-slate-800 flex flex-col xl:flex-row items-center justify-between gap-2.5 shadow-2xl select-none min-h-[92px] relative z-30 overflow-hidden">
             <!-- 1. LEFT BLOCK: BADGES, TITLE, SUBTITLE (EXACTLY AS IN UPLOADED PHOTO) -->
-            <div class="flex flex-col justify-center shrink-0 min-w-[430px] max-w-[470px]">
+            <div class="flex flex-col justify-center shrink-0 w-full min-w-0 lg:w-auto lg:min-w-[380px] lg:max-w-[470px]">
                 <!-- BADGES -->
-                <div class="flex items-center gap-1.5 flex-nowrap mb-1">
+                <div class="flex items-center gap-1.5 flex-wrap mb-1">
                     <span class="bg-[#031d28] text-cyan-300 border border-cyan-500/70 text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider whitespace-nowrap shadow-sm">DAM DECISION SUPPORT SYSTEM</span>
                     <span id="badgeActiveDam" class="bg-[#081b3a] text-blue-300 border border-blue-500/70 text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider whitespace-nowrap shadow-sm">BENDUNGAN POSO-1 (SULAWESI TENGAH)</span>
                     <span class="bg-[#04281f] text-emerald-300 border border-emerald-500/70 text-[9px] font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider whitespace-nowrap shadow-sm">MULTI-PURPOSE HYDROPOWER &amp; FLOOD CONTROL</span>
                 </div>
                 <!-- TITLE -->
-                <div class="flex items-baseline gap-1.5 whitespace-nowrap">
-                    <h1 id="mainAppTitle" class="font-tech text-lg sm:text-xl font-black tracking-wide text-white uppercase leading-none">
+                <div class="flex items-baseline gap-1.5 flex-wrap">
+                    <h1 id="mainAppTitle" class="font-tech text-base sm:text-xl font-black tracking-wide text-white uppercase leading-tight">
                         DAM DECISION SUPPORT SYSTEM (DAM-DSS)
                     </h1>
-                    <span class="text-cyan-400 font-tech font-bold text-xs uppercase tracking-wider">V5.0 PRO</span>
+                    <span class="text-cyan-400 font-tech font-bold text-xs uppercase tracking-wider">V5.1 PRO</span>
                 </div>
                 <!-- SUBTITLE -->
-                <p class="text-[9.5px] font-mono text-slate-300 mt-1 uppercase tracking-wider flex items-center gap-1.5 font-bold whitespace-nowrap">
+                <p class="text-[9.5px] font-mono text-slate-300 mt-1 uppercase tracking-wider flex items-center gap-1.5 font-bold min-w-0">
                     <span id="sync-status-dot" class="inline-block w-2 h-2 rounded-full bg-cyan-400 shrink-0 shadow-[0_0_6px_#22d3ee]"></span> 
-                    <span id="sync-status-text">PEMODELAN HIDROLOGI &amp; ROUTING WADUK · KEAMANAN STRUKTUR · ALOKASI MULTI-GUNA PLTA POSO-1 &amp; KERINCI</span>
+                    <span id="sync-status-text" class="truncate min-w-0">PEMODELAN HIDROLOGI &amp; ROUTING WADUK · KEAMANAN STRUKTUR · ALOKASI MULTI-GUNA PLTA POSO-1 &amp; KERINCI</span>
                 </p>
             </div>
 
@@ -526,7 +531,7 @@
             </div>
 
             <!-- 3. RIGHT BLOCK: 2 ROWS X 5 BUTTONS (MATCHING EXACT PHOTO COLORS & OUTLINES) -->
-            <div class="flex flex-col gap-1.5 shrink-0 w-[510px] sm:w-[540px] justify-center">
+            <div class="flex flex-col gap-1.5 shrink-0 w-full min-w-0 lg:w-[510px] lg:min-w-0 xl:w-[540px] justify-center">
                 <!-- ROW 1 (5 BUTTONS) -->
                 <div class="grid grid-cols-5 gap-1.5 w-full">
                     <!-- 1. DAM SELECTOR -->
@@ -1497,7 +1502,7 @@
 
             </div>
             <div class="bg-slate-900 border-x border-b border-cyan-800/60 rounded-b-2xl p-2 text-center">
-                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.0) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
+                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.1) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
             </div>
         </div>
     </div>
@@ -5059,7 +5064,7 @@ const DAM_DSS_PRO = {
         doc.text(`Tingkat Bahaya Seismik: ${currentDam.faultName} (PGA ${currentDam.pgaDesign}g)`, 14, 126);
 
         doc.setTextColor(52, 211, 153); doc.setFontSize(8);
-        doc.text("Dicetak melalui DAM-DSS Pro v5.0: " + new Date().toLocaleString('id-ID'), 14, H - 18);
+        doc.text("Dicetak melalui DAM-DSS Pro v5.1: " + new Date().toLocaleString('id-ID'), 14, H - 18);
         
         doc.addPage();
         // Page 2: Summary Table
