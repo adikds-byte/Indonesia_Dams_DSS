@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dam DSS Pro v5.1 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
+    <title>Dam DSS Pro v5.2 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -1502,7 +1502,7 @@
 
             </div>
             <div class="bg-slate-900 border-x border-b border-cyan-800/60 rounded-b-2xl p-2 text-center">
-                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.1) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
+                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.2) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
             </div>
         </div>
     </div>
@@ -4559,10 +4559,11 @@ function runHydroSimulation() {
     document.getElementById('lbl-spillway').innerText = `${spillPct.toFixed(0)}% (Q = ${qSpillwayCalc.toFixed(1)} m³/s)`;
     document.getElementById('top-outflow-val').innerText = `${totalOutflow.toFixed(1)} m³/s`;
 
-    // Evaluasi Daya Listrik PLTA
+    // Evaluasi Daya Listrik PLTA — [v5.2 FIX V&V §7.2] cut-off turbin di bawah MOL
+    const molCutoff = tma <= currentDam.lowElev;
     const netHead = currentDam.designHead * (tma / currentDam.normalElev);
     const efficiency = 0.90;
-    const powerMW = Math.min(currentDam.pltaCapacityMW, (9.81 * qTurbin * netHead * efficiency) / 1000);
+    const powerMW = molCutoff ? 0 : Math.min(currentDam.pltaCapacityMW, (9.81 * qTurbin * netHead * efficiency) / 1000);
     const powerPct = Math.min(100, Math.round((powerMW / currentDam.pltaCapacityMW) * 100));
 
     // Evaluasi Faktor Keamanan Lereng (SF Bishop)
@@ -4596,7 +4597,7 @@ function runHydroSimulation() {
     document.getElementById('bar-flood-cap').style.width = `${floodCapPct}%`;
     document.getElementById('bar-flood-cap').className = `h-full transition-all duration-500 ${floodCapPct > 40 ? 'bg-cyan-500' : (floodCapPct > 20 ? 'bg-amber-500' : 'bg-red-500')}`;
 
-    document.getElementById('val-plta').innerText = `${powerMW.toFixed(1)} MW (${powerPct}% Maks)`;
+    document.getElementById('val-plta').innerText = molCutoff ? `0.0 MW — TURBIN OFF (TMA di bawah MOL)` : `${powerMW.toFixed(1)} MW (${powerPct}% Maks)`;
     document.getElementById('bar-plta').style.width = `${powerPct}%`;
 
     document.getElementById('val-ekonomi').innerText = `Rp ${nilaiRupiahMiliar.toFixed(1)} Miliar/Bln`;
@@ -4972,25 +4973,34 @@ function makeElementDraggable(element, handle) {
 // =========================================================================
 const DAM_DSS_PRO = {
     // 1. Modified Puls Reservoir Routing
-    routing: function(qPeak, tp, L, Cd) {
+    routing: function(qPeak, tp, L, Cd, poolM) {
+        // [v5.2 FIX V&V §4.1] Kopel weir penuh: outflow = Cd·L·H^1.5, H dari tampungan S (neraca kontinuitas)
         const dt = 1.0;
         const steps = 30;
+        const sub = 12; // sub-step 5 menit — stabilisasi numerik
         const timeArr = Array.from({ length: steps }, (_, i) => i);
         const inflow = timeArr.map(t => Math.round(50 + (qPeak - 50) * Math.exp(-Math.pow((t - tp) / (tp * 0.45), 2))));
         
+        const A_POOL = (poolM && poolM > 0) ? poolM : 100.0; // luas kolam efektif (H = S/A); dari geometri bendungan bila tersedia
         const outflow = [];
-        let S = 100;
+        let S = 0;
         inflow.forEach((I, idx) => {
-            if (idx === 0) { outflow.push(I); return; }
-            const prevO = outflow[idx - 1];
-            const prevI = inflow[idx - 1];
-            const nextO = Math.round(0.65 * prevO + 0.35 * (prevI + I) / 2);
-            outflow.push(nextO);
+            let oSum = 0;
+            for (let j = 0; j < sub; j++) {
+                const dtSub = dt / sub;
+                const H = S / A_POOL;
+                const oWeir = Cd * L * Math.pow(H + 0.05, 1.5);
+                const avail = I + S / dtSub;
+                const O = Math.max(0, Math.min(oWeir, avail));
+                oSum += O * dtSub;
+                S = Math.max(0, S + (I - O) * dtSub);
+            }
+            outflow.push(Math.round(oSum / dt));
         });
 
         const maxOut = Math.max(...outflow);
         const attenuation = ((qPeak - maxOut) / qPeak) * 100;
-        return { timeArr, inflow, outflow, attenuation, maxOut };
+        return { timeArr, inflow, outflow, attenuation, maxOut, storageEnd: S };
     },
 
     // 2. Stabilitas Bishop Lereng
@@ -5064,7 +5074,7 @@ const DAM_DSS_PRO = {
         doc.text(`Tingkat Bahaya Seismik: ${currentDam.faultName} (PGA ${currentDam.pgaDesign}g)`, 14, 126);
 
         doc.setTextColor(52, 211, 153); doc.setFontSize(8);
-        doc.text("Dicetak melalui DAM-DSS Pro v5.1: " + new Date().toLocaleString('id-ID'), 14, H - 18);
+        doc.text("Dicetak melalui DAM-DSS Pro v5.2: " + new Date().toLocaleString('id-ID'), 14, H - 18);
         
         doc.addPage();
         // Page 2: Summary Table
@@ -5142,7 +5152,10 @@ function proRunRouting() {
     const L = parseFloat(document.getElementById('proInSpillL').value);
     const Cd = parseFloat(document.getElementById('proInCd').value);
 
-    const r = DAM_DSS_PRO.routing(qPeak, tp, L, Cd);
+    // [v5.2] luas kolam efektif dari geometri bendungan aktif (tampungan siaga normal->banjir / freeboard)
+    const freeb = Math.max(0.5, currentDam.floodElev - currentDam.normalElev + 0.5);
+    const poolM = (Math.max(1, currentDam.floodVolume - currentDam.normalVolume) * 1000000 / 3600) / freeb;
+    const r = DAM_DSS_PRO.routing(qPeak, tp, L, Cd, poolM);
     document.getElementById('proRoutingOut').innerHTML = `
         <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
             <div class="bg-slate-950 border border-slate-800 rounded p-1.5"><span class="text-slate-400">Debit Puncak Inflow</span><br><b class="text-rose-400 text-sm">${qPeak} m³/s</b></div>
