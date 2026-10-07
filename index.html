@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dam DSS Pro v4.9 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
+    <title>Dam DSS Pro v5.0 — Sistem Pendukung Keputusan Bendungan Poso-1 & Bendungan Kerinci</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -188,6 +188,33 @@
                 max-width: 220px !important;
                 white-space: normal !important;
             }
+        }
+
+
+        /* ============ RESPONSIVE v5.0 (SMARTPHONE & TABLET) ============ */
+        @media (max-width: 1024px) {
+            .hud-window { width: min(400px, calc(100vw - 20px)) !important; }
+            #hydroHUDBody { overflow-y: auto; max-height: 42vh; overscroll-behavior: contain; }
+            #polaOperasiTableWrap { max-height: 46vh; }
+        }
+        @media (max-width: 640px) {
+            .hud-window { top: 70px !important; right: 8px !important; left: auto !important; width: calc(100vw - 16px) !important; max-height: 56vh; font-size: 12px; }
+            #hydroHUDBody { max-height: 38vh; }
+            #floatingChatPanel { right: 6px !important; left: 6px !important; width: auto !important; height: 76vh !important; max-height: 76vh !important; bottom: 60px !important; }
+            #floatingChatPanel .chat-msg { font-size: 12px !important; }
+            input[type=range] { height: 28px !important; }
+            input[type=range]::-webkit-slider-thumb { -webkit-appearance: none !important; appearance: none !important; width: 22px !important; height: 22px !important; border-radius: 9999px !important; border: 2px solid #e2e8f0 !important; cursor: pointer; }
+            input[type=range]::-moz-range-thumb { width: 22px !important; height: 22px !important; border-radius: 9999px !important; border: 2px solid #e2e8f0 !important; cursor: pointer; }
+            div[id$="Modal"] > div { max-height: calc(100vh - 1.2rem) !important; overflow-y: auto; overscroll-behavior: contain; }
+            #globalActionButtons { bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important; right: 8px !important; }
+            #floatingButtonsGroup { gap: 6px !important; }
+            #floatingButtonsGroup button { height: 2.4rem !important; width: 2.4rem !important; }
+            #polaOperasiSection { padding: 12px !important; }
+            #polaOperasiTableWrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-height: none; }
+            #polaOperasiTableWrap table { font-size: 10px !important; }
+            #polaStatusGrid { grid-template-columns: 1fr !important; }
+            body { padding: 8px !important; }
+            .leaflet-container { border-radius: 14px; }
         }
 
         #screensaverScreen { display: none; opacity: 0; }
@@ -437,7 +464,7 @@
                     <h1 id="mainAppTitle" class="font-tech text-lg sm:text-xl font-black tracking-wide text-white uppercase leading-none">
                         DAM DECISION SUPPORT SYSTEM (DAM-DSS)
                     </h1>
-                    <span class="text-cyan-400 font-tech font-bold text-xs uppercase tracking-wider">V4.9 PRO</span>
+                    <span class="text-cyan-400 font-tech font-bold text-xs uppercase tracking-wider">V5.0 PRO</span>
                 </div>
                 <!-- SUBTITLE -->
                 <p class="text-[9.5px] font-mono text-slate-300 mt-1 uppercase tracking-wider flex items-center gap-1.5 font-bold whitespace-nowrap">
@@ -447,7 +474,7 @@
             </div>
 
             <!-- 2. MIDDLE BLOCK: CLOCK + TELEMETRY (TOP) & 4 METRIC CARDS (BOTTOM) -->
-            <div class="grid grid-cols-4 gap-1.5 text-center shrink-0 w-[500px] sm:w-[530px]">
+            <div class="grid grid-cols-4 gap-1.5 text-center shrink-0 w-full max-w-[530px] min-w-0">
                 <!-- TOP ROW: CLOCK (ABOVE ELEVASI & INFLOW) -->
                 <div class="col-span-2 flex items-center justify-between gap-1.5 bg-[#050c1e] border border-cyan-500/80 px-3 py-1 rounded-xl shadow-md min-w-0">
                     <div class="flex items-center gap-2 min-w-0">
@@ -919,6 +946,64 @@
             </section>
         </main>
 
+        <!-- ====== v5.0: POLA OPERASI WADUK (RULE CURVE & ZONA OPERASI) ====== -->
+        <section id="polaOperasiSection" class="w-full bg-[var(--bg-card)] p-4 sm:p-5 rounded-2xl border-2 border-slate-800 shadow-xl relative z-10 mt-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <h2 class="font-tech text-xs md:text-sm font-black text-cyan-400 border-b border-cyan-900/50 pb-2 flex items-center gap-2 uppercase tracking-wider flex-1 min-w-[240px]">
+                    <i class="fa-solid fa-water text-blue-400"></i> Pola Operasi Waduk (Rule Curve) — <span id="polaDamLabel">…</span>
+                </h2>
+                <span id="polaZoneBadge" class="text-[10px] font-black font-mono px-3 py-1.5 rounded-full border shrink-0">MEMUAT…</span>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <!-- KIRI: KURVA PENGATURAN -->
+                <div class="lg:col-span-7 bg-slate-950 border border-slate-800 rounded-xl p-3 min-w-0">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <h3 class="font-tech text-[11px] font-black text-blue-400 uppercase">📊 Kurva Pengaturan Operasi Tahunan (12 Bulan)</h3>
+                        <span class="text-[9px] font-mono text-slate-400">Sumber elevasi: data teknis waduk aktif (normal / maks / minimum)</span>
+                    </div>
+                    <div class="h-[300px] sm:h-[340px]"><canvas id="polaOperasiChart"></canvas></div>
+                    <p class="text-[9.5px] text-slate-400 font-mono mt-2 leading-relaxed">Kurva target disusun dari pola musim Indonesia (pengisian Des-Mar, penurunan Apr-Okt menuju titik terendah akhir kemarau). Operasi harian: jaga TMA antara kurva target dan batas maksimum; siapkan ruang cadangan banjir saat puncak musim hujan (kurva siaga).</p>
+                </div>
+                <!-- KANAN: STATUS & REKOMENDASI -->
+                <div class="lg:col-span-5 flex flex-col gap-2.5 min-w-0" id="polaStatusGrid">
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+                        <h3 class="font-tech text-[11px] font-black text-amber-400 uppercase mb-2">🎯 Status Operasi Bulan Ini</h3>
+                        <div id="polaStatusBody" class="text-[11px] font-mono text-slate-300 leading-relaxed">…</div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+                        <h3 class="font-tech text-[11px] font-black text-cyan-400 uppercase mb-2">⚡ Rekomendasi Rilis & Energi</h3>
+                        <div id="polaRekomBody" class="text-[11px] font-mono text-slate-300 leading-relaxed">…</div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+                        <h3 class="font-tech text-[11px] font-black text-rose-400 uppercase mb-2">📋 Ketentuan Zona Operasi</h3>
+                        <ul class="text-[10px] font-mono text-slate-400 space-y-1 leading-relaxed">
+                            <li><b class="text-rose-400">ZONA A — DARURAT BANJIR:</b> TMA ≥ batas maksimum. Pre-release penuh, siapkan EAP.</li>
+                            <li><b class="text-emerald-400">ZONA B — NORMAL:</b> TMA di atas kurva target. Operasi PLTA sesuai permintaan PLN.</li>
+                            <li><b class="text-amber-400">ZONA C — KONSERVASI:</b> TMA di bawah target. Kurangi rilis, prioritas air baku/irigasi.</li>
+                            <li><b class="text-red-400">ZONA D — KRITIKAL:</b> TMA mendekati minimum operasi. Rilis minimum + eco-flow.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- TABEL POLA 12 BULAN -->
+            <div class="mt-4">
+                <h3 class="font-tech text-[11px] font-black text-emerald-400 uppercase mb-2">📆 Matriks Pola Operasi Bulanan — <span id="polaDamLabel2">…</span></h3>
+                <div id="polaOperasiTableWrap" class="overflow-x-auto bg-slate-950 border border-slate-800 rounded-xl">
+                    <table class="w-full text-[10.5px] font-mono text-slate-300 min-w-[680px]" id="polaOperasiTable">
+                        <thead class="bg-slate-900 text-cyan-400"><tr>
+                            <th class="p-2 text-left sticky left-0 bg-slate-900">Bulan</th>
+                            <th class="p-2">Pola Inflow (%)</th>
+                            <th class="p-2">Elev. Target (m dpl)</th>
+                            <th class="p-2">Batas Siaga Banjir (m)</th>
+                            <th class="p-2">Rilis Turbin (% Qmax)</th>
+                            <th class="p-2 text-left">Fokus Operasi</th>
+                        </tr></thead>
+                        <tbody id="polaOperasiTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <!-- 7 PILAR METODOLOGI DAM DSS -->
         <section class="w-full bg-[var(--bg-card)] p-4 rounded-2xl border-2 border-slate-800 shadow-xl relative z-10 mt-1">
             <h2 class="font-tech text-xs md:text-sm font-black text-cyan-400 border-b border-cyan-900/50 pb-2 mb-3 flex items-center gap-2 uppercase tracking-wider">
@@ -986,6 +1071,9 @@
                 </button>
                 <button type="button" onclick="toggleMinimizeHydroHUD()" class="w-7 h-7 rounded bg-slate-900 border border-slate-700 hover:border-amber-400 text-slate-300 hover:text-white flex items-center justify-center text-xs transition-colors cursor-pointer" title="Perkecil ke Badge">
                     <i id="hydroHudMinIcon" class="fa-solid fa-window-minimize -mt-1.5"></i>
+                </button>
+                <button type="button" onclick="scrollToPolaOperasi()" class="bg-blue-700 hover:bg-blue-500 text-white border border-blue-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Pola Operasi Waduk (Rule Curve)">
+                    <i class="fa-solid fa-chart-line text-sm text-blue-100"></i>
                 </button>
                 <button type="button" onclick="toggleHydrologyHUD()" class="w-7 h-7 rounded bg-slate-900 border border-slate-700 hover:border-rose-400 text-slate-300 hover:text-rose-400 flex items-center justify-center text-xs transition-colors cursor-pointer" title="Tutup Jendela">
                     <i class="fa-solid fa-xmark"></i>
@@ -1409,7 +1497,7 @@
 
             </div>
             <div class="bg-slate-900 border-x border-b border-cyan-800/60 rounded-b-2xl p-2 text-center">
-                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v4.9) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
+                <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.0) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
             </div>
         </div>
     </div>
@@ -4258,6 +4346,7 @@ function switchDam(key) {
     renderDamGisLayers();
     if (map) map.flyTo(currentDam.coords, currentDam.zoom, { animate: true, duration: 1.5 });
     runHydroSimulation();
+    if (typeof renderPolaOperasi === 'function') renderPolaOperasi();
     toastNotifikasi(`Beralih ke sistem ${currentDam.shortName} (${currentDam.province})`, 'fa-dam');
 }
 
@@ -4398,6 +4487,7 @@ function focusDamLocation(structureType) {
 // 2. SIMULATOR HIDRODINAMIKA & DAM SAFETY INDEX (IKK)
 // =========================================================================
 function onSliderChange() {
+    if (typeof renderPolaOperasi === 'function') renderPolaOperasi();
     document.getElementById('scenarioPresetSelect').value = 'custom';
     document.getElementById('activeScenarioLabel').innerText = 'Parametrik Custom';
     runHydroSimulation();
@@ -4553,8 +4643,10 @@ function updateHudMetrics(tma, qIn, qOut, qTurb, qSpill, pMW, sf) {
 // 3. CHARTS ENGINE (CHART.JS)
 // =========================================================================
 function initCharts() {
+    if (typeof Chart === 'undefined') { console.warn('Chart.js gagal dimuat — grafik dinonaktifkan, data tetap akurat.'); return; }
     // 1. PROYEKSI TMA & VOLUME TAMPUNGAN
     const ctxProj = document.getElementById('projectionChart').getContext('2d');
+    if (projectionChartInstance) projectionChartInstance.destroy();
     projectionChartInstance = new Chart(ctxProj, {
         type: 'line',
         data: {
@@ -4576,6 +4668,7 @@ function initCharts() {
     });
 
     // 2. ROUTING BANJIR WADUK
+    if (hydrographChartInstance) hydrographChartInstance.destroy();
     const ctxHydro = document.getElementById('hydrographChart').getContext('2d');
     const floodHours = Array.from({ length: 25 }, (_, i) => `${i}j`);
     const qInflowCurve = floodHours.map((_, i) => Math.round(50 + 400 * Math.exp(-Math.pow((i - 10) / 4, 2))));
@@ -4601,6 +4694,7 @@ function initCharts() {
     });
 
     // 3. INSTRUMENTASI KEAMANAN STRUKTUR
+    if (damSafetyChartInstance) damSafetyChartInstance.destroy();
     const ctxSafety = document.getElementById('damSafetyChart').getContext('2d');
     damSafetyChartInstance = new Chart(ctxSafety, {
         type: 'line',
@@ -4623,6 +4717,7 @@ function initCharts() {
     });
 
     // 4. DAYA PLTA
+    if (pltaPowerChartInstance) pltaPowerChartInstance.destroy();
     const ctxPlta = document.getElementById('pltaPowerChart').getContext('2d');
     pltaPowerChartInstance = new Chart(ctxPlta, {
         type: 'bar',
@@ -4964,7 +5059,7 @@ const DAM_DSS_PRO = {
         doc.text(`Tingkat Bahaya Seismik: ${currentDam.faultName} (PGA ${currentDam.pgaDesign}g)`, 14, 126);
 
         doc.setTextColor(52, 211, 153); doc.setFontSize(8);
-        doc.text("Dicetak melalui DAM-DSS Pro v4.9: " + new Date().toLocaleString('id-ID'), 14, H - 18);
+        doc.text("Dicetak melalui DAM-DSS Pro v5.0: " + new Date().toLocaleString('id-ID'), 14, H - 18);
         
         doc.addPage();
         // Page 2: Summary Table
@@ -5027,6 +5122,8 @@ function proSwitchTab(tab) {
 let studioCharts = {};
 function proInitAll() {
     proRunRouting();
+    if (typeof populateVoiceSelect === 'function') setTimeout(populateVoiceSelect, 400);
+    if (typeof renderPolaOperasi === 'function') renderPolaOperasi();
     proRunStability();
     proRunSediment();
     proRunAhp();
@@ -5118,6 +5215,7 @@ function proRunStability() {
         const saPoso = periods.map(T => +(0.42 * (T < 0.2 ? (1 + 1.5 * (T / 0.2)) : (T < 0.6 ? 2.5 : 2.5 * (0.6 / T)))).toFixed(2));
         const saKerinci = periods.map(T => +(0.45 * (T < 0.2 ? (1 + 1.5 * (T / 0.2)) : (T < 0.6 ? 2.5 : 2.5 * (0.6 / T)))).toFixed(2));
 
+        if (studioCharts.seismic) studioCharts.seismic.destroy();
         studioCharts.seismic = new Chart(ctxSeis, {
             type: 'line',
             data: {
@@ -5162,6 +5260,7 @@ function proRunSediment() {
         const trappedSed = s.netSedPerYear;
         const passedSed = totalInflowSed * 0.12;
 
+        if (studioCharts.sediment) studioCharts.sediment.destroy();
         studioCharts.sediment = new Chart(ctx1, {
             type: 'bar',
             data: {
@@ -5741,7 +5840,14 @@ function processUserChatMessage() {
     chatBox.scrollTop = chatBox.scrollHeight;
 
     const lower = msg.toLowerCase();
-    if (lower.includes('poso')) { triggerChatShortcut('poso_detail'); }
+    if (lower.includes('pola operasi') || lower.includes('rule curve') || lower.includes('pola pengoperasian') || lower.includes('operasi waduk')) {
+        renderPolaOperasi();
+        const zone = document.getElementById('polaZoneBadge') ? document.getElementById('polaZoneBadge').textContent : '';
+        chatBox.innerHTML += `<div class="flex mt-2"><div class="bg-slate-800 text-cyan-100 p-2.5 rounded-r-xl rounded-bl-xl text-xs border border-cyan-900 leading-relaxed">🌊 <b>Pola Operasi Waduk</b> untuk ${currentDam.shortName}:<br>• Kurva pengaturan tahunan (target/siaga/MOL/maks) pada modul POLA OPERASI di bawah dasbor<br>• Status saat ini: <b>${zone}</b><br>• Rilis turbin & estimasi energi mengikuti matriks bulanan (pola inflow musim Indonesia)<br><button onclick="scrollToPolaOperasi()" class="mt-1.5 bg-cyan-700 hover:bg-cyan-600 text-white px-3 py-1 rounded-lg text-[10px] font-bold">BUKA MODUL POLA OPERASI</button></div></div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+        speakBot('Modul pola operasi waduk siap. Status saat ini: ' + zone);
+    }
+    else if (lower.includes('poso')) { triggerChatShortcut('poso_detail'); }
     else if (lower.includes('kerinci')) { triggerChatShortcut('kerinci_detail'); }
     else if (lower.includes('gempa') || lower.includes('sesar') || lower.includes('seismik')) { triggerChatShortcut('seismik_sesar'); }
     else if (lower.includes('aman') || lower.includes('status') || lower.includes('ikk')) { triggerChatShortcut('status_keamanan'); }
@@ -5957,6 +6063,209 @@ function toastNotifikasi(msg, icon) {
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 450); }, 3000);
 }
 
+
+// ============ PATCH v4.9.2: fungsi pelengkap + guard profesional ============
+function searchMapLocation() {
+    const q = (document.getElementById('mapSearchInput') ? document.getElementById('mapSearchInput').value : '').trim().toLowerCase();
+    if (!q) { toastNotifikasi('Ketik nama sensor / struktur dulu.', 'fa-magnifying-glass'); return; }
+    let found = null, label = '';
+    if ((currentDam.name || '').toLowerCase().includes(q) || (currentDam.shortName || '').toLowerCase().includes(q)) {
+        found = currentDam.coords; label = currentDam.name;
+    }
+    if (!found && currentDam.structures) {
+        const s = currentDam.structures.find(x => (x.name || '').toLowerCase().includes(q));
+        if (s) { found = s.coords; label = s.name; }
+    }
+    if (!found && currentDam.telemetry) {
+        const t = currentDam.telemetry.find(x => (x.name || (x.id || '')).toLowerCase().includes(q));
+        if (t) { found = t.coords; label = t.name || t.id; }
+    }
+    if (!found && currentDam.instruments) {
+        const i = currentDam.instruments.find(x => (x.name || (x.id || '')).toLowerCase().includes(q));
+        if (i) { found = i.coords; label = i.name || i.id; }
+    }
+    if (!found) { toastNotifikasi('Tidak ditemukan: ' + q + ' (coba: intake, spillway, powerhouse, piezometer, AWLR...)', 'fa-triangle-exclamation'); return; }
+    if (map) map.flyTo(found, Math.max(map.getZoom(), 15), { duration: 1.2 });
+    toastNotifikasi('Menuju: ' + label, 'fa-location-crosshairs');
+}
+let dictationActive = false, recognition = null;
+function toggleDictation() {
+    const btn = document.getElementById('micBtn');
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { toastNotifikasi('Dikte suara tidak didukung browser ini (pakai Chrome/Edge).', 'fa-triangle-exclamation'); return; }
+    if (dictationActive) { recognition && recognition.stop(); return; }
+    recognition = new SR();
+    recognition.lang = 'id-ID'; recognition.interimResults = false; recognition.continuous = false;
+    recognition.onstart = () => { dictationActive = true; if (btn) btn.classList.add('bg-cyan-500', 'text-slate-950'); toastNotifikasi('Mendengarkan... silakan bicara.', 'fa-microphone'); };
+    recognition.onresult = (e) => {
+        const txt = e.results[0][0].transcript;
+        const input = document.getElementById('chatInputField');
+        if (input) { input.value = txt; input.focus(); toastNotifikasi('Dikte masuk: ' + txt, 'fa-microphone-lines'); }
+    };
+    recognition.onerror = (e) => { toastNotifikasi('Dikte gagal: ' + e.error, 'fa-triangle-exclamation'); };
+    recognition.onend = () => { dictationActive = false; if (btn) btn.classList.remove('bg-cyan-500', 'text-slate-950'); };
+    recognition.start();
+}
+function populateVoiceSelect() {
+    const sel = document.getElementById('voiceSelect');
+    if (!sel || !synth) return;
+    const voices = synth.getVoices ? (synth.getVoices() || []) : [];
+    if (!voices.length) return;
+    const sorted = voices.slice().sort((a, b) => {
+        const rank = v => (v.lang || '').toLowerCase().startsWith('id') ? 0 : (v.lang || '').toLowerCase().startsWith('en') ? 1 : 2;
+        return rank(a) - rank(b);
+    });
+    sel.innerHTML = sorted.map(v => '<option value="' + (v.name || '').replace(/"/g, '&quot;') + '">' + (v.lang ? '[' + v.lang + '] ' : '') + (v.name || 'suara') + '</option>').join('');
+    if (botVoice) sel.value = botVoice.name;
+}
+function changeBotVoice() {
+    const sel = document.getElementById('voiceSelect');
+    if (!sel || !synth) return;
+    const voices = synth.getVoices ? (synth.getVoices() || []) : [];
+    const chosen = voices.find(v => v.name === sel.value);
+    if (chosen) { botVoice = chosen; toastNotifikasi('Suara AI diganti: ' + chosen.name, 'fa-waveform-lines'); }
+    else { toastNotifikasi('Suara tidak ditemukan di perangkat ini.', 'fa-triangle-exclamation'); }
+}
+if (typeof synth !== 'undefined' && synth) { try { synth.onvoiceschanged = populateVoiceSelect; } catch (e) {} }
+
+
+// ================== v5.0: POLA OPERASI WADUK (RULE CURVE) ==================
+const POLA_BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+// fraksi rentang (lowElev -> normalElev) kurva target: pengisian Des-Mar, drawdown Apr-Okt
+const POLA_TARGET_FRAC = [0.92, 0.98, 1.00, 0.92, 0.75, 0.55, 0.38, 0.25, 0.15, 0.10, 0.18, 0.55];
+// pola inflow bulanan (x inflow rata-rata)
+const POLA_INFLOW = [1.45, 1.50, 1.35, 1.15, 0.85, 0.60, 0.45, 0.38, 0.35, 0.40, 0.70, 1.20];
+// target rilis turbin (% Qmax) per bulan
+const POLA_TURBIN = [0.80, 0.82, 0.78, 0.72, 0.62, 0.52, 0.45, 0.40, 0.42, 0.48, 0.58, 0.70];
+const POLA_FOKUS = [
+    'Puncak musim hujan — generasi maksimum + ruang cadangan banjir',
+    'Puncak musim hujan — waspada PMF, jaga ruang simpan sisa',
+    'Akhir musim hujan — isi penuh menuju elevasi normal',
+    'Transisi — mulai turunkan target siaga banjir',
+    'Menuju kemarau — optimasi harian & irigasi',
+    'Awal kemarau — konservasi mulai diterapkan',
+    'Kemarau — prioritas air baku & eco-flow',
+    'Kemarau — rilis terkendali, pantau kualitas air',
+    'Puncak kemarau — titik terendah kurva target',
+    'Akhir kemarau — siap skenario kemarau ekstrem',
+    'Awal pengisuan — tingkatkan target bertahap',
+    'Pengisuan aktif — siapkan kapasitas simpan penuh'
+];
+let polaChartInstance = null;
+function polaSeries(dam) {
+    const lo = dam.lowElev, hi = dam.normalElev, mx = dam.floodElev;
+    const range = hi - lo;
+    const target = POLA_TARGET_FRAC.map(f => +(lo + f * range).toFixed(2));
+    // batas siaga banjir: sisakan ruang cadangan saat Des-Mar (0.55x), transisi Apr/Nov (0.3x), lainnya 0
+    const reserve = [0.55, 0.60, 0.45, 0.30, 0.10, 0, 0, 0, 0, 0, 0.30, 0.45];
+    const siaga = reserve.map((r, i) => {
+        const cap = Math.max(mx - target[i], 0);
+        return +(target[i] + (1 - r) * cap).toFixed(2);
+    });
+    return { target: target, siaga: siaga };
+}
+function polaCurrentTma() {
+    const s = document.getElementById('slider-tma');
+    return s ? parseFloat(s.value) : (currentDam ? currentDam.normalElev : 0);
+}
+function polaZone(tma, dam, tgt, sgn) {
+    if (tma >= dam.floodElev) return { z: 'A', label: 'ZONA A — DARURAT BANJIR', cls: 'bg-rose-950 text-rose-300 border-rose-500', turbin: 1.00, spill: 0.45, advice: 'Pre-release maksimum lewat spillway & turbin. Aktifkan EAP, pantau 24 jam.' };
+    if (tma >= tgt) return { z: 'B', label: 'ZONA B — OPERASI NORMAL', cls: 'bg-emerald-950 text-emerald-300 border-emerald-500', turbin: 0.70, spill: 0.10, advice: 'Operasi PLTA sesuai permintaan PLN; jaga TMA di bawah batas siaga banjir.' };
+    if (tma >= dam.lowElev + 0.35 * (tgt - dam.lowElev)) return { z: 'C', label: 'ZONA C — KONSERVASI', cls: 'bg-amber-950 text-amber-300 border-amber-500', turbin: 0.45, spill: 0.02, advice: 'Kurangi rilis turbin; prioritaskan air baku, irigasi & eco-flow. Waspada penurunan lanjut.' };
+    return { z: 'D', label: 'ZONA D — KRITIKAL KEMARAU', cls: 'bg-red-950 text-red-300 border-red-500', turbin: 0.20, spill: 0, advice: 'Rilis minimum operasi + eco-flow wajib. Pertimbangkan restriksi non-prioritas.' };
+}
+function renderPolaOperasi() {
+    const dam = currentDam; if (!dam) return;
+    const lbl = document.getElementById('polaDamLabel'), lbl2 = document.getElementById('polaDamLabel2');
+    if (lbl) lbl.textContent = dam.shortName || dam.name;
+    if (lbl2) lbl2.textContent = dam.shortName || dam.name;
+    const ser = polaSeries(dam);
+    const now = new Date();
+    const mi = now.getMonth();
+    const tma = polaCurrentTma();
+    const tgt = ser.target[mi];
+    const zone = polaZone(tma, dam, tgt, ser.siaga[mi]);
+    // badge
+    const badge = document.getElementById('polaZoneBadge');
+    if (badge) { badge.className = 'text-[10px] font-black font-mono px-3 py-1.5 rounded-full border shrink-0 ' + zone.cls; badge.textContent = zone.label; }
+    // status body
+    const dev = +(tma - tgt).toFixed(2);
+    const sb = document.getElementById('polaStatusBody');
+    if (sb) sb.innerHTML = 'Bulan: <b class="text-cyan-300">' + POLA_BULAN[mi] + ' ' + now.getFullYear() + '</b><br>' +
+        'TMA aktual: <b class="text-cyan-300">' + tma.toFixed(2) + ' m dpl</b> · Target: <b>' + tgt.toFixed(2) + ' m</b><br>' +
+        'Deviasi vs target: <b class="' + (dev >= 0 ? 'text-emerald-400' : 'text-amber-400') + '">' + (dev >= 0 ? '+' : '') + dev.toFixed(2) + ' m</b><br>' +
+        'Batas siaga banjir bulan ini: <b>' + ser.siaga[mi].toFixed(2) + ' m</b> · MOL: <b>' + dam.lowElev.toFixed(2) + ' m</b><br>' +
+        '<span class="' + (zone.z === 'B' ? 'text-emerald-400' : (zone.z === 'A' ? 'text-rose-400' : 'text-amber-400')) + '">' + zone.advice + '</span>';
+    // rekomendasi rilis
+    const qT = +(dam.turbinMaxDischarge * zone.turbin).toFixed(1);
+    const qS = +(dam.spillwayWidth ? qT * zone.spill : 0).toFixed(1);
+    const eco = +((dam.inflowAvg || 0) * 0.10).toFixed(1);
+    const mw = +(0.00883 * qT * (dam.designHead || 0) * 0.90).toFixed(1);
+    const rb = document.getElementById('polaRekomBody');
+    if (rb) rb.innerHTML = 'Rilis turbin: <b class="text-amber-300">' + qT + ' m³/s</b> (' + Math.round(zone.turbin * 100) + '% Qmax ' + dam.turbinMaxDischarge + ')<br>' +
+        'Spillway: <b class="text-rose-300">' + qS + ' m³/s</b> · Eco-flow hilir: <b class="text-emerald-300">' + eco + ' m³/s</b><br>' +
+        'Estimasi daya: <b class="text-cyan-300">' + mw + ' MW</b> dari kapasitas terpasang ' + (dam.pltaCapacityMW || '-') + ' MW<br>' +
+        'Target bulan depan: <b>' + ser.target[(mi + 1) % 12].toFixed(2) + ' m</b> (' + POLA_BULAN[(mi + 1) % 12] + ')';
+    // tabel 12 bulan
+    const tb = document.getElementById('polaOperasiTbody');
+    if (tb) {
+        tb.innerHTML = POLA_BULAN.map((b, i) => {
+            const isNow = i === mi;
+            return '<tr class="border-t border-slate-800 ' + (isNow ? 'bg-cyan-950/50 text-cyan-200 font-bold' : 'hover:bg-slate-900') + '">' +
+                '<td class="p-1.5 sticky left-0 ' + (isNow ? 'bg-cyan-950' : 'bg-slate-950') + '">' + (isNow ? '▶ ' : '') + b + '</td>' +
+                '<td class="p-1.5 text-center">' + Math.round(POLA_INFLOW[i] * 100) + '%</td>' +
+                '<td class="p-1.5 text-center">' + ser.target[i].toFixed(2) + '</td>' +
+                '<td class="p-1.5 text-center">' + ser.siaga[i].toFixed(2) + '</td>' +
+                '<td class="p-1.5 text-center">' + Math.round(POLA_TURBIN[i] * 100) + '%</td>' +
+                '<td class="p-1.5">' + POLA_FOKUS[i] + '</td></tr>';
+        }).join('');
+    }
+    // chart
+    if (typeof Chart === 'undefined') return;
+    const ctx = document.getElementById('polaOperasiChart');
+    if (!ctx) return;
+    if (polaChartInstance) polaChartInstance.destroy();
+    polaChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: POLA_BULAN,
+            datasets: [
+                { label: 'Batas Maks (m)', data: POLA_BULAN.map(() => dam.floodElev), borderColor: '#f43f5e', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, tension: 0.2 },
+                { label: 'Siaga Banjir (m)', data: ser.siaga, borderColor: '#f59e0b', borderWidth: 1.5, pointRadius: 2, tension: 0.35, fill: false },
+                { label: 'Elevasi Normal (m)', data: POLA_BULAN.map(() => dam.normalElev), borderColor: '#38bdf8', borderDash: [3, 3], borderWidth: 1, pointRadius: 0 },
+                { label: 'Kurva Target (m)', data: ser.target, borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,0.12)', borderWidth: 2.5, pointRadius: 2.5, tension: 0.35, fill: '+1' },
+                { label: 'Minimum Operasi (m)', data: POLA_BULAN.map(() => dam.lowElev), borderColor: '#a855f7', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0 },
+                { label: 'TMA Aktual (m)', data: POLA_BULAN.map(() => tma), borderColor: '#4ade80', borderWidth: 1.5, pointRadius: (c) => c.dataIndex === mi ? 7 : 0, pointBackgroundColor: '#4ade80', pointBorderColor: '#052e16', pointHoverRadius: 9, fill: false },
+                { label: 'Posisi Bulan Ini', data: POLA_BULAN.map((_, i) => i === mi ? ser.target[mi] : null), borderColor: 'transparent', pointRadius: 6, pointBackgroundColor: '#fde047', pointBorderColor: '#854d0e', showLine: false }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { labels: { color: '#94a3b8', font: { size: 9 }, boxWidth: 12, boxHeight: 8 },
+                          onClick: (e, el) => {} },
+                tooltip: { titleFont: { size: 10 }, bodyFont: { size: 9 } }
+            },
+            scales: {
+                x: { ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: 'rgba(30,41,59,0.6)' } },
+                y: { min: dam.lowElev - Math.max(2, (dam.floodElev - dam.lowElev) * 0.06), max: dam.floodElev + Math.max(1.5, (dam.floodElev - dam.lowElev) * 0.05),
+                     ticks: { color: '#64748b', font: { size: 9 } }, grid: { color: 'rgba(30,41,59,0.6)' }, title: { display: true, text: 'Elevasi (m dpl)', color: '#94a3b8', font: { size: 9 } } }
+            }
+        }
+    });
+}
+function scrollToPolaOperasi() {
+    const el = document.getElementById('polaOperasiSection');
+    if (!el) return;
+    renderPolaOperasi();
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.style.transition = 'box-shadow .6s';
+    el.style.boxShadow = '0 0 0 3px rgba(34,211,238,0.7), 0 0 40px rgba(34,211,238,0.35)';
+    setTimeout(() => { el.style.boxShadow = ''; }, 1400);
+    toastNotifikasi('Modul Pola Operasi Waduk ditampilkan.', 'fa-water');
+}
+
 // MODAL CONTROLS
 function openScenarioModal() { document.getElementById('scenarioModal').classList.remove('hidden'); }
 function closeScenarioModal() { document.getElementById('scenarioModal').classList.add('hidden'); }
@@ -6081,6 +6390,7 @@ window.onload = () => {
     initInteractiveTooltips();
     renderDamGisLayers();
     initCharts();
+    try { switchDam(currentDamKey); } catch (e) { console.warn('sync awal bendungan tertunda: ' + e.message); }
     runHydroSimulation();
     initEarth();
     setTimeout(() => {
