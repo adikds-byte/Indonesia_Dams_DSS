@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dam DSS Pro v6.5 — Sistem Pendukung Keputusan Operasi Bendungan di Indonesia & Monitoring Seismik PuSGeN 2024</title>
+    <title>Dam DSS Pro v6.5.1 — Sistem Pendukung Keputusan Operasi Bendungan di Indonesia & Monitoring Seismik PuSGeN 2024</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -1483,10 +1483,10 @@
             </div>
             <div class="bg-slate-900/60 border-x border-b border-slate-800 flex-1 p-2 sm:p-4">
 
-                <!-- [v6.5] STRIP KONTEKS BENDUNGAN TERPILIH (sinkron semua tab) -->
+                <!-- [v6.5.1] STRIP KONTEKS BENDUNGAN TERPILIH (sinkron semua tab) -->
                 <div id="proDamContextBar" class="mb-3 bg-slate-950/85 border border-cyan-800/60 rounded-xl px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-mono"></div>
 
-                <!-- [v6.5] ===== PANE 0: PETA & POLA OPERASI ===== -->
+                <!-- [v6.5.1] ===== PANE 0: PETA & POLA OPERASI ===== -->
                 <div id="proPane-pola">
                     <div class="grid lg:grid-cols-2 gap-3">
                         <div class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex flex-col">
@@ -1728,17 +1728,18 @@
     <!-- MODAL 2: FIELD DATA & TECHNICAL SPECIFICATIONS -->
     <div id="techSpecModal" class="fixed inset-0 z-[110] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
         <div class="bg-slate-900 border-2 border-cyan-500 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden font-sans">
-            <div class="p-4 bg-slate-950 border-b border-cyan-900 flex justify-between items-center">
-                <div class="flex items-center gap-2.5 text-cyan-400 font-tech font-black text-sm md:text-base uppercase tracking-wider">
-                    <i class="fa-solid fa-database text-lg"></i> Lembar Data Teknis, Sensor &amp; Risalah Bendungan — <span id="techSpecTitleCount">Seluruh Bendungan Termodel</span>
+            <div class="p-4 bg-slate-950 border-b border-cyan-900 flex justify-between items-center gap-3 flex-shrink-0">
+                <div class="flex items-center gap-2.5 text-cyan-400 font-tech font-black text-sm md:text-base uppercase tracking-wider min-w-0">
+                    <i class="fa-solid fa-database text-lg flex-shrink-0"></i> <span class="truncate">Lembar Data Teknis, Sensor &amp; Risalah Bendungan — <span id="techSpecTitleCount">Seluruh Bendungan Termodel</span></span>
                 </div>
-                <button onclick="closeTechSpecModal()" class="text-slate-400 hover:text-white text-xl cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-         BASIS DATA SELURUH BENDUNGAN TERMODEL &amp; RISALAH TEKNIS
-                </h3>
+                <button onclick="closeTechSpecModal()" aria-label="Tutup" title="Tutup (Esc)" class="flex-shrink-0 w-10 h-10 rounded-xl bg-rose-700 hover:bg-rose-500 active:scale-95 text-white text-2xl font-bold flex items-center justify-center shadow-[0_0_14px_rgba(244,63,94,0.5)] border border-rose-400 cursor-pointer transition-all"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-4 sm:p-6 overflow-y-auto custom-scrollbar flex-grow space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed font-mono">
+                <div class="p-3 bg-cyan-950/80 border border-cyan-500/60 rounded-xl text-center">
+                    <h3 class="text-base font-black font-tech text-white uppercase">Basis Data Seluruh Bendungan Termodel &amp; Risalah Teknis</h3>
                     <p class="text-cyan-300 text-[11px] mt-0.5">Sinkron dengan seluruh bendungan yang dimodelkan &amp; disimulasikan pada aplikasi ini — hidrologi, PLTA, seismik, routing, dan metrik solusi per bendungan.</p>
                 </div>
                 <div id="techSpecDynamic"></div>
-            </div></div>
             </div>
         </div>
     </div>
@@ -1899,7 +1900,7 @@
                 </div>
             </div>
 
-            <!-- [v6.5] MODE SWITCH: SINGLE-SITE STUDIO <-> MATRIX COMMAND CENTRE -->
+            <!-- [v6.5.1] MODE SWITCH: SINGLE-SITE STUDIO <-> MATRIX COMMAND CENTRE -->
             <div id="seismicModeSwitchBar" class="cmd-card border border-amber-500/50 rounded-2xl p-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-gradient-to-r from-[#091224] via-slate-900 to-[#091224] shadow-lg shadow-amber-950/40">
                 <div class="flex items-center gap-2 px-1">
                     <i class="fa-solid fa-satellite-dish text-amber-400 animate-pulse"></i>
@@ -1915,7 +1916,7 @@
                 </div>
             </div>
 
-            <!-- [v6.5] WRAP: body single-site -->
+            <!-- [v6.5.1] WRAP: body single-site -->
             <div id="seismicStudioSingleBody" class="space-y-4">
             <!-- 2. STATUS STRIP & GEODATA TAPAK BENDUNGAN -->
             <div class="cmd-card p-3 sm:p-4 border border-slate-800 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-slate-900/90">
@@ -2641,7 +2642,7 @@
 
             </div><!-- /seismicStudioSingleBody -->
 
-            <!-- [v6.5] ==================== MATRIX MULTI-SITE COMMAND CENTRE (24 BENDUNGAN) ==================== -->
+            <!-- [v6.5.1] ==================== MATRIX MULTI-SITE COMMAND CENTRE (24 BENDUNGAN) ==================== -->
             <div id="seismicMatrixPanel" class="hidden space-y-4">
 
                 <!-- KPI STRIP -->
@@ -8134,7 +8135,7 @@ function runHydroSimulation() {
 }
 
 
-// ==================== [v6.5] SINKRONISASI HUD OPERASI WADUK & TELEMETRI DENGAN BENDUNGAN TERPILIH ====================
+// ==================== [v6.5.1] SINKRONISASI HUD OPERASI WADUK & TELEMETRI DENGAN BENDUNGAN TERPILIH ====================
 const HUD_RIVER_BEARING_DEG = { // arah aliran sungai hilir (derajat dari Utara, searah jarum jam) — perkiraan geografis tiap sistem sungai
     wonorejo: 150, karangkates: 345, selorejo: 160, sampeanbaru: 40, bening: 20, klampis: 190,
     cirata: 300, saguling: 330, jatiluhur: 340, jatigede: 20,
@@ -8223,7 +8224,7 @@ function updateHudMetrics(tma, qIn, qOut, qTurb, qSpill, pMW, sf) {
     const miniTma = document.getElementById('miniTmaVal');
     if (miniTma) miniTma.innerText = `${tma.toFixed(2)}m`;
 
-    // [v6.5] sinkronkan seluruh konteks HUD dengan bendungan terpilih
+    // [v6.5.1] sinkronkan seluruh konteks HUD dengan bendungan terpilih
     updateHudDamContext(tma, qOut, qTurb, qSpill, pMW);
 }
 
@@ -8231,7 +8232,7 @@ function updateHudMetrics(tma, qIn, qOut, qTurb, qSpill, pMW, sf) {
 // 3. CHARTS ENGINE (CHART.JS)
 // =========================================================================
 
-// ==================== [v6.5] GENERATOR SERI DASBOR PER BENDUNGAN TERPILIH ====================
+// ==================== [v6.5.1] GENERATOR SERI DASBOR PER BENDUNGAN TERPILIH ====================
 function damDashboardSeries(tma, qIn, pMW) {
     const dam = currentDam; if (!dam) return null;
     tma = (tma != null) ? tma : dam.normalElev;
@@ -8750,7 +8751,7 @@ function closeStudioPro() {
 }
 
 
-// ==================== [v6.5] PANE PETA & POLA OPERASI — SINKRON BENDUNGAN TERPILIH ====================
+// ==================== [v6.5.1] PANE PETA & POLA OPERASI — SINKRON BENDUNGAN TERPILIH ====================
 let proPolaMapInstance = null;
 let proPolaChartInstance = null;
 
@@ -9683,7 +9684,7 @@ function triggerChatShortcut(key) {
 
 
 // =========================================================================
-// [v6.5] SMART CHATBOT ENGINE — PENCARIAN INTERNET, SUMBER BERWARNA & SARAN TEKNIS
+// [v6.5.1] SMART CHATBOT ENGINE — PENCARIAN INTERNET, SUMBER BERWARNA & SARAN TEKNIS
 // =========================================================================
 const BOT_SOURCE_LINKS = [
     { name: 'Wikipedia ID', color: 'bg-emerald-950 border-emerald-500 text-emerald-300', icon: 'fa-book-open', url: q => 'https://id.wikipedia.org/w/index.php?search=' + encodeURIComponent(q) },
@@ -10243,7 +10244,40 @@ function scrollToPolaOperasi() {
 function openScenarioModal() { document.getElementById('scenarioModal').classList.remove('hidden'); }
 function closeScenarioModal() { document.getElementById('scenarioModal').classList.add('hidden'); }
 
-// ==================== [v6.5] DATA TEKNIS DINAMIS: TABEL + RISALAH & METRIK SOLUSI PER BENDUNGAN ====================
+// ==================== [v6.5.1] DATA TEKNIS DINAMIS: TABEL + RISALAH & METRIK SOLUSI PER BENDUNGAN ====================
+
+// ==================== [v6.5.1.1] PROFIL STRUKTUR & FUNGSI PER BENDUNGAN ====================
+const DAM_TECH_PROFILE = {
+    wonorejo:      { tipe: "Rockfill Clay Core", H: 100, fungsi: "Irigasi, PLTA 6,3 MW, air baku Tulungagung & pengendali banjir Gondang" },
+    cirata:        { tipe: "Concrete Face Rockfill Dam (CFRD)", H: 125, fungsi: "PLTA 1.008 MW (3×336 MW) Citarum" },
+    saguling:      { tipe: "Rockfill Clay Core", H: 99, fungsi: "PLTA 700 MW (4×175 MW) + pengendali banjir Citarum hulu" },
+    jatiluhur:     { tipe: "Rockfill (spillway morning glory)", H: 105, fungsi: "PLTA 350 MW, irigasi Jatiluhur & air baku Jabodetabek" },
+    jatigede:      { tipe: "Zoned Rockfill (CFRD)", H: 110, fungsi: "Irigasi 90.000 ha, PLTA 110 MW (2×55 MW), air baku & banjir Cimanuk" },
+    karangkates:   { tipe: "Rockfill Sloping Core (Sutami)", H: 100, fungsi: "PLTA 120 MW (3×40 MW) + irigasi Brantas" },
+    kedungombo:    { tipe: "Zoned Earthfill", H: 61, fungsi: "Irigasi 61.000 ha, PLTA 22,5 MW & penanda air baku" },
+    gajahmungkur:  { tipe: "Rockfill Clay Core", H: 42, fungsi: "Irigasi + pengendali banjir Bengawan Solo + wisata" },
+    sempor:        { tipe: "Rockfill Clay Core", H: 60, fungsi: "Irigasi + pengendali banjir Kebumen + air baku (rekonstruksi pasca-1967)" },
+    wadaslintang:  { tipe: "Rockfill Clay Core", H: 48, fungsi: "Irigasi + PLTA mikro + air baku Wonosobo-Purworejo" },
+    mrica:         { tipe: "Earthfill rendah (Pondasi kuat)", H: 26, fungsi: "PLTA 184 MW (Mrica/PB Soedirman) + irigasi Serayu" },
+    sermo:         { tipe: "Rockfill", H: 35, fungsi: "Irigasi + air baku DIY (Kulon Progo)" },
+    batutegi:      { tipe: "Rockfill Clay Core", H: 125, fungsi: "Irigasi 54.000 ha Sekampung + potensi PLTA" },
+    kerinci:       { tipe: "Pengatur outlet Danau Kerinci (bend turap)", H: 12, fungsi: "PLTA Merangin Kerinci 350 MW, head 310 m via terowongan" },
+    kotopanjang:   { tipe: "Rockfill", H: 58, fungsi: "PLTA 114 MW (3×38 MW) Kampar + irigasi + banjir Riau" },
+    siguragura:    { tipe: "Ambang beton (barrage) + terowongan head 216 m", H: 11, fungsi: "PLTA 174 MW (2×87 MW) kaskade Asahan Sigura-gura" },
+    riamkanan:     { tipe: "Rockfill Clay Core", H: 57, fungsi: "Irigasi + PLTA + air baku Banjarmasin + wisata" },
+    poso:          { tipe: "Pengatur outlet Danau Poso (Sulewana)", H: 15, fungsi: "PLTA Poso-1 60 MW, kaskade Poso Energy hingga 515 MW" },
+    bilibili:      { tipe: "Rockfill Central Core", H: 73, fungsi: "Air baku Makassar + irigasi + banjir Jeneberang (pasca-lahar Bawakaraeng 2004)" },
+    bakaru:        { tipe: "Rockfill", H: 42, fungsi: "PLTA 126 MW (2×63 MW) Sulawesi Selatan" },
+    palasari:      { tipe: "Zoned Earthfill", H: 42, fungsi: "Irigasi + air baku + pengendali banjir Jembrana (Bali)" },
+    batujai:       { tipe: "Earthfill", H: 25, fungsi: "Irigasi + air baku Lombok Tengah" },
+    mamak:         { tipe: "Rockfill", H: 21, fungsi: "Irigasi + air baku Sumbawa" },
+    duriangkang:   { tipe: "Earthfill", H: 20, fungsi: "Air baku Batam + pengendali banjir" },
+    wayapu:        { tipe: "Zoned Rockfill", H: 69, fungsi: "Irigasi 10.000 ha + air baku + PLTMH 0,68 MW (Bendungan pertama Maluku)" },
+    meninting:     { tipe: "Rockfill Kaolin Core (PSN)", H: 39, fungsi: "Irigasi 1.600-2.000 ha + air baku Kota Mataram" },
+    bintangbano:   { tipe: "Zoned Rockfill", H: 72, fungsi: "Irigasi 6.695 ha + PLTM 6,3 MW (KPBU) + reduksi banjir 53% KSB" },
+    tiusuntuk:     { tipe: "Rockfill", H: 60, fungsi: "Irigasi 1.743 ha + air baku 68 lt/d + PLTMH 0,81 MW + banjir" }
+};
+
 function techSpecDamMetrics(dam) {
     // Metrik mesin aplikasi (konsisten dgn studio pro) untuk dam terkait
     const freeb = Math.max(0.5, dam.floodElev - dam.normalElev + 0.5);
@@ -10272,6 +10306,7 @@ function techSpecVerdict(dam, m) {
     if (dam.pgaDesign >= 0.45) { kesimpulan.push(`bahaya seismik sangat tinggi (PGA ${dam.pgaDesign}g — ${dam.faultName})`); solusi.push('aktifkan protokol inspeksi pasca-gempa >0,2g (RTD)'); }
     return { kesimpulan, solusi };
 }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = document.getElementById('techSpecModal'); if (m && !m.classList.contains('hidden')) closeTechSpecModal(); } });
 function techSpecRenderAll() {
     const box = document.getElementById('techSpecDynamic');
     if (!box) return;
@@ -10282,6 +10317,7 @@ function techSpecRenderAll() {
         <table class="w-full text-left border-collapse text-[11px]">
             <thead><tr class="bg-slate-950 text-cyan-400 border-b border-slate-700 font-tech uppercase text-[10px]">
                 <th class="p-2.5">Bendungan</th><th class="p-2.5">Lokasi / DAS</th>
+                <th class="p-2.5">Tipe Struktur (H)</th>
                 <th class="p-2.5 text-center">Tampungan (Jt m³)</th>
                 <th class="p-2.5 text-center">NWL / FWL / MOL (m)</th>
                 <th class="p-2.5 text-center">PLTA (MW)</th>
@@ -10290,8 +10326,10 @@ function techSpecRenderAll() {
             </tr></thead><tbody class="divide-y divide-slate-800 text-slate-200">`;
     keys.forEach((k, idx) => {
         const d = DAM_DATA[k];
+        const pr = DAM_TECH_PROFILE[k] || {};
         html += `<tr class="hover:bg-cyan-950/30"><td class="p-2.5 font-bold text-cyan-300">${idx + 1}. ${d.shortName || d.name}</td>
             <td>${d.district || '-'} — ${d.river || '-'}</td>
+            <td class="text-[10px]">${pr.tipe || '-'} <b class="text-amber-300 font-mono">(H=${pr.H || '?'} m)</b></td>
             <td class="text-center font-mono">${Number(d.normalVolume).toLocaleString('id-ID')} / ${Number(d.floodVolume).toLocaleString('id-ID')}</td>
             <td class="text-center font-mono">${d.normalElev} / ${d.floodElev} / ${d.lowElev}</td>
             <td class="text-center font-mono">${d.pltaCapacityMW}</td>
@@ -10312,6 +10350,7 @@ function techSpecRenderAll() {
             </summary>
             <div class="px-3 pb-3 text-[10.5px] leading-relaxed space-y-1.5 border-t border-slate-800 pt-2">
                 <p><b class="text-white">Identitas:</b> ${d.name} · ${d.river} · ${d.locationStr || d.district} (${d.province}, ${d.timezone}).</p>
+                <p><b class="text-amber-300">Profil Struktur &amp; Fungsi:</b> ${(DAM_TECH_PROFILE[k] || {}).tipe || '-'} (H = ${(DAM_TECH_PROFILE[k] || {}).H || '?'} m) · Fungsi utama: ${(DAM_TECH_PROFILE[k] || {}).fungsi || '-'}.</p>
                 <p class="grid grid-cols-2 gap-x-3 font-mono text-slate-300">
                     <span>Atenuasi routing: <b class="${m.att != null && m.att >= 30 ? 'text-emerald-400' : 'text-amber-400'}">${m.att != null ? m.att.toFixed(1) + '%' : '-'}</b></span>
                     <span>SF pseudo-statis: <b class="${m.sfPseudo != null && m.sfPseudo >= 1.2 ? 'text-emerald-400' : 'text-rose-400'}">${m.sfPseudo != null ? m.sfPseudo.toFixed(2) : '-'}</b></span>
@@ -10324,7 +10363,7 @@ function techSpecRenderAll() {
         </details>`;
     });
     html += '</div>';
-    html += '<p class="text-[9px] text-slate-500 font-mono mt-2 italic">Catatan: metrik dihitung dari basis data &amp; mesin simulasi aplikasi; parameter eksplisit per bendungan (elevasi operasi, head, inflow) bersifat pemodelan teknis — validasi lanjut dgn data as-built BWS setempat.</p>';
+    html += '<p class="text-[9px] text-slate-500 font-mono mt-2 italic">Catatan: metrik dihitung dari basis data &amp; mesin simulasi aplikasi. Profil tipe struktur/tinggi/fungsi dirangkum dari sumber publik PUPR/BBSWS (tinggi sebagian indikatif, ditandai bila as-built berbeda). Elevasi operasi, head &amp; inflow = pemodelan teknis — validasi lanjut dgn data as-built BWS setempat.</p>';
     box.innerHTML = html;
 }
 
@@ -11583,7 +11622,7 @@ function calculateSiteSpecificSpectrum(basePga, baseSs, baseS1, vs30) {
 }
 
 
-// ==================== [v6.5] MATRIX MULTI-SITE COMMAND CENTRE — MONITORING SEISMIK PER SITE ====================
+// ==================== [v6.5.1] MATRIX MULTI-SITE COMMAND CENTRE — MONITORING SEISMIK PER SITE ====================
 let seismicMatrixSelected = null;
 let seismicMatrixChartInstance = null;
 let seismicMatrixIsland = 'Semua';
@@ -11888,7 +11927,7 @@ function openSeismicStudioModal() {
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
-    // [v6.5] restore mode interface terakhir (single/matrix) dalam sesi ini
+    // [v6.5.1] restore mode interface terakhir (single/matrix) dalam sesi ini
     try { if (sessionStorage.getItem('dam_seismic_mode') === 'matrix') switchSeismicInterfaceMode('matrix'); } catch (e) {}
 
     // Sync with currently active dam in dashboard
