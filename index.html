@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dam DSS Pro v6.4 — Sistem Pendukung Keputusan Operasi Bendungan di Indonesia & Monitoring Seismik PuSGeN 2024</title>
+    <title>Dam DSS Pro v6.5 — Sistem Pendukung Keputusan Operasi Bendungan di Indonesia & Monitoring Seismik PuSGeN 2024</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -1483,10 +1483,10 @@
             </div>
             <div class="bg-slate-900/60 border-x border-b border-slate-800 flex-1 p-2 sm:p-4">
 
-                <!-- [v6.4] STRIP KONTEKS BENDUNGAN TERPILIH (sinkron semua tab) -->
+                <!-- [v6.5] STRIP KONTEKS BENDUNGAN TERPILIH (sinkron semua tab) -->
                 <div id="proDamContextBar" class="mb-3 bg-slate-950/85 border border-cyan-800/60 rounded-xl px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-mono"></div>
 
-                <!-- [v6.4] ===== PANE 0: PETA & POLA OPERASI ===== -->
+                <!-- [v6.5] ===== PANE 0: PETA & POLA OPERASI ===== -->
                 <div id="proPane-pola">
                     <div class="grid lg:grid-cols-2 gap-3">
                         <div class="bg-slate-900 border border-slate-800 rounded-xl p-2.5 flex flex-col">
@@ -1899,7 +1899,7 @@
                 </div>
             </div>
 
-            <!-- [v6.4] MODE SWITCH: SINGLE-SITE STUDIO <-> MATRIX COMMAND CENTRE -->
+            <!-- [v6.5] MODE SWITCH: SINGLE-SITE STUDIO <-> MATRIX COMMAND CENTRE -->
             <div id="seismicModeSwitchBar" class="cmd-card border border-amber-500/50 rounded-2xl p-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 bg-gradient-to-r from-[#091224] via-slate-900 to-[#091224] shadow-lg shadow-amber-950/40">
                 <div class="flex items-center gap-2 px-1">
                     <i class="fa-solid fa-satellite-dish text-amber-400 animate-pulse"></i>
@@ -1915,7 +1915,7 @@
                 </div>
             </div>
 
-            <!-- [v6.4] WRAP: body single-site -->
+            <!-- [v6.5] WRAP: body single-site -->
             <div id="seismicStudioSingleBody" class="space-y-4">
             <!-- 2. STATUS STRIP & GEODATA TAPAK BENDUNGAN -->
             <div class="cmd-card p-3 sm:p-4 border border-slate-800 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-slate-900/90">
@@ -2641,7 +2641,7 @@
 
             </div><!-- /seismicStudioSingleBody -->
 
-            <!-- [v6.4] ==================== MATRIX MULTI-SITE COMMAND CENTRE (24 BENDUNGAN) ==================== -->
+            <!-- [v6.5] ==================== MATRIX MULTI-SITE COMMAND CENTRE (24 BENDUNGAN) ==================== -->
             <div id="seismicMatrixPanel" class="hidden space-y-4">
 
                 <!-- KPI STRIP -->
@@ -8134,7 +8134,7 @@ function runHydroSimulation() {
 }
 
 
-// ==================== [v6.4] SINKRONISASI HUD OPERASI WADUK & TELEMETRI DENGAN BENDUNGAN TERPILIH ====================
+// ==================== [v6.5] SINKRONISASI HUD OPERASI WADUK & TELEMETRI DENGAN BENDUNGAN TERPILIH ====================
 const HUD_RIVER_BEARING_DEG = { // arah aliran sungai hilir (derajat dari Utara, searah jarum jam) — perkiraan geografis tiap sistem sungai
     wonorejo: 150, karangkates: 345, selorejo: 160, sampeanbaru: 40, bening: 20, klampis: 190,
     cirata: 300, saguling: 330, jatiluhur: 340, jatigede: 20,
@@ -8223,7 +8223,7 @@ function updateHudMetrics(tma, qIn, qOut, qTurb, qSpill, pMW, sf) {
     const miniTma = document.getElementById('miniTmaVal');
     if (miniTma) miniTma.innerText = `${tma.toFixed(2)}m`;
 
-    // [v6.4] sinkronkan seluruh konteks HUD dengan bendungan terpilih
+    // [v6.5] sinkronkan seluruh konteks HUD dengan bendungan terpilih
     updateHudDamContext(tma, qOut, qTurb, qSpill, pMW);
 }
 
@@ -8231,7 +8231,7 @@ function updateHudMetrics(tma, qIn, qOut, qTurb, qSpill, pMW, sf) {
 // 3. CHARTS ENGINE (CHART.JS)
 // =========================================================================
 
-// ==================== [v6.4] GENERATOR SERI DASBOR PER BENDUNGAN TERPILIH ====================
+// ==================== [v6.5] GENERATOR SERI DASBOR PER BENDUNGAN TERPILIH ====================
 function damDashboardSeries(tma, qIn, pMW) {
     const dam = currentDam; if (!dam) return null;
     tma = (tma != null) ? tma : dam.normalElev;
@@ -8750,7 +8750,7 @@ function closeStudioPro() {
 }
 
 
-// ==================== [v6.4] PANE PETA & POLA OPERASI — SINKRON BENDUNGAN TERPILIH ====================
+// ==================== [v6.5] PANE PETA & POLA OPERASI — SINKRON BENDUNGAN TERPILIH ====================
 let proPolaMapInstance = null;
 let proPolaChartInstance = null;
 
@@ -9620,6 +9620,13 @@ function initFloatingButtonsDefault() {
     }
 }
 
+
+function appendSourceRowAfter(query) {
+    const chatBox = document.getElementById('chatContainer');
+    chatBox.innerHTML += `<div class="flex mt-1"><div class="max-w-full p-1.5">${buildSourceLinksHTML(query)}</div></div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 function triggerChatShortcut(key) {
     const chatBox = document.getElementById('chatContainer');
     let promptText = "";
@@ -9674,6 +9681,121 @@ function triggerChatShortcut(key) {
     }, 400);
 }
 
+
+// =========================================================================
+// [v6.5] SMART CHATBOT ENGINE — PENCARIAN INTERNET, SUMBER BERWARNA & SARAN TEKNIS
+// =========================================================================
+const BOT_SOURCE_LINKS = [
+    { name: 'Wikipedia ID', color: 'bg-emerald-950 border-emerald-500 text-emerald-300', icon: 'fa-book-open', url: q => 'https://id.wikipedia.org/w/index.php?search=' + encodeURIComponent(q) },
+    { name: 'Wikipedia EN', color: 'bg-emerald-950 border-emerald-500 text-emerald-300', icon: 'fa-book', url: q => 'https://en.wikipedia.org/w/index.php?search=' + encodeURIComponent(q) },
+    { name: 'Google', color: 'bg-blue-950 border-blue-500 text-blue-300', icon: 'fa-brands fa-google', url: q => 'https://www.google.com/search?q=' + encodeURIComponent(q) },
+    { name: 'Bing', color: 'bg-amber-950 border-amber-500 text-amber-300', icon: 'fa-brands fa-bing', url: q => 'https://www.bing.com/search?q=' + encodeURIComponent(q) },
+    { name: 'Copilot AI', color: 'bg-rose-950 border-rose-500 text-rose-300', icon: 'fa-brands fa-microsoft', url: q => 'https://copilot.microsoft.com/?q=' + encodeURIComponent(q) },
+    { name: 'Gemini AI', color: 'bg-purple-950 border-purple-500 text-purple-300', icon: 'fa-solid fa-wand-magic-sparkles', url: q => 'https://gemini.google.com/app?q=' + encodeURIComponent(q) },
+    { name: 'Perplexity', color: 'bg-teal-950 border-teal-500 text-teal-300', icon: 'fa-solid fa-bolt', url: q => 'https://www.perplexity.ai/search?q=' + encodeURIComponent(q) }
+];
+function buildSourceLinksHTML(query) {
+    const grid = BOT_SOURCE_LINKS.map(s =>
+        `<a href="${s.url(query)}" target="_blank" rel="noopener" class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border ${s.color} text-[10px] font-bold hover:brightness-125 transition-all"><i class="${s.icon}"></i>${s.name}</a>`).join('');
+    return `<div class="mt-2 p-2 rounded-xl bg-slate-950/80 border border-slate-700"><p class="text-[9px] text-slate-400 font-bold uppercase mb-1.5"><i class="fa-solid fa-link text-cyan-400 mr-1"></i>Sumber Rujukan & Referensi:</p><div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">${grid}</div></div>`;
+}
+const TECH_ADVICE_LIBRARY = {
+    seismik: { title: 'TITIK GEMPA / SEISMIK', color: 'border-rose-500 bg-rose-950/40', advice: ['Inspeksi visual cepat seluruh tubuh bendungan setiap guncangan >0,2g (RTD Pasal Protokol Gempa).', 'Aktifkan akselerograf/SMA dan bandingkan spektrum respons terhadap spektrum desain SNI 1726:2019.', 'Evaluasi stabilitas lereng pseudo-statis dengan kh = 0,5 × PGA (USBR/ICOLD).'], links: ['https://sda.pu.go.id/berita/detail/pedoman-pengoperasian-dan-pemeliharaan-bendungan', 'https://www.usbr.gov/ssle/dam-safety', 'https://www.icold-cigb.org/GB/icold/icold.aspx'] },
+    sedimentasi: { title: 'MANAJEMEN SEDIMENTASI', color: 'border-amber-500 bg-amber-950/40', advice: ['Hitung laju sedimen tahunan (survey bathymetri) dan proyeksikan umur kolam mati (dead storage).', 'Terapkan teknik sediment routing/flushing saat banjir untuk memelihara kapasitas tampungan efektif.', 'Konservasi DTA hulu (vegetasi + kontrol erosion) adalah solusi termurah jangka panjang.'], links: ['https://www.usbr.gov/tsc/techreferences/reservoirs.html', 'https://gistm.info/', 'https://id.wikipedia.org/w/index.php?search=sedimentasi+waduk'] },
+    banjir: { title: 'PENGENDALIAN BANJIR', color: 'border-red-500 bg-red-950/40', advice: ['Jalankan flood routing Modified Puls dan pastikan freeboard minimum terpenuhi pada PMF.', 'Susun SOP pembukaan pintu radial bertahap sesuai rating curve pelimpah.', 'Uji sirene EWS dan jalur evakuasi hilir minimal 2x setahun.'], links: ['https://www.hec.usace.army.mil/software/hec-hms/', 'https://sda.pu.go.id/', 'https://www.icold-cigb.org/GB/dams/dams.asp'] },
+    plta: { title: 'OPTIMASI PEMBANGKITAN', color: 'border-purple-500 bg-purple-950/40', advice: ['Susun jadwal peaking mengikuti kurva beban dan jaga TMA di atas MOL (cut-off turbin).', 'Hitung effisiensi turbin-generator dan potensi peningkatan kapasitas (uprating).', 'Koordinasi rilis irigasi dan eco-flow hilir dengan pembangkitan.'], links: ['https://www.hydropower.org/', 'https://id.wikipedia.org/w/index.php?search=pembangkit+listrik+tenaga+air', 'https://www.iha-pumpedhydro.com/'] },
+    default: { title: 'REKAYASA BENDUNGAN UMUM', color: 'border-cyan-500 bg-cyan-950/40', advice: ['Rujuk pedoman operasi & pemeliharaan bendungan Kementerian PUPR serta Permen PUPR 27/PRT/M/2015.', 'Pantau instrumentasi (piezometer, V-notch, settlement) dan buat laporan berkala bulanan.', 'Lakukan Safety Review Dam (DSR) setiap 5 tahun oleh tim independen.'], links: ['https://sda.pu.go.id/', 'https://www.icold-cigb.org/GB/icold/icold.aspx', 'https://www.usbr.gov/ssle/dam-safety'] }
+};
+function detectAdviceTopic(q) {
+    const l = q.toLowerCase();
+    if (/gempa|seismik|sesar|pga|guncang/.test(l)) return 'seismik';
+    if (/sedimen|sediment|engeruhan|abration|abrasi/.test(l)) return 'sedimentasi';
+    if (/banjir|flood|routing|pelimpah|spillway|overtop/.test(l)) return 'banjir';
+    if (/plta|turbin|listrik|daya|peaking|megawatt/.test(l)) return 'plta';
+    return 'default';
+}
+function buildTechAdviceHTML(query) {
+    const t = TECH_ADVICE_LIBRARY[detectAdviceTopic(query)];
+    const items = t.advice.map((a, i) => `<li class="ml-3 list-decimal text-[11px] text-slate-200 leading-relaxed">${a}</li>`).join('');
+    const links = t.links.map(u => `<a href="${u}" target="_blank" rel="noopener" class="text-cyan-400 underline text-[10px] break-all">${u.length > 58 ? u.slice(0, 55) + '...' : u}</a>`).join('<span class="text-slate-600 mx-1">•</span>');
+    return `<div class="mt-2 p-2.5 rounded-xl border ${t.color}"><p class="text-[10px] font-black uppercase text-white mb-1"><i class="fa-solid fa-screwdriver-wrench mr-1"></i>Solusi &amp; Saran Teknis — ${t.title}</p><ul class="space-y-1">${items}</ul><p class="mt-1.5 text-[9px] text-slate-400 font-bold uppercase">Referensi Teknis:</p><p>${links}</p></div>`;
+}
+function detectDamInMessage(msg) {
+    const l = msg.toLowerCase();
+    for (const k of Object.keys(DAM_DATA)) {
+        const d = DAM_DATA[k]; if (!d || !d.normalElev) continue;
+        const nm = (d.shortName || d.name).replace(/bendungan/gi, '').trim().toLowerCase();
+        if (nm && l.includes(nm)) return k;
+    }
+    return null;
+}
+function renderDamDetailCard(key) {
+    const d = DAM_DATA[key];
+    const m = techSpecDamMetrics(d);
+    const v = techSpecVerdict(d, m);
+    const chatBox = document.getElementById('chatContainer');
+    const card = `<div class="flex mt-2"><div class="max-w-full bg-slate-900 border border-cyan-600 rounded-r-xl rounded-bl-xl p-3 text-xs leading-relaxed shadow-lg">
+        <p class="font-black text-cyan-300 text-sm"><i class="fa-solid fa-water mr-1"></i>${d.name}</p>
+        <p class="text-[11px] text-slate-300 mt-0.5"><i class="fa-solid fa-location-dot text-rose-400 mr-1"></i>${d.locationStr || d.district} · ${d.river} · Zona ${d.timezone}</p>
+        <div class="grid grid-cols-2 gap-x-3 gap-y-1 mt-2 font-mono text-[11px] p-2 rounded-lg bg-slate-950 border border-slate-700">
+            <span class="text-slate-400">Tampungan normal: <b class="text-cyan-300">${d.normalVolume} jt m³</b></span>
+            <span class="text-slate-400">Tampungan banjir: <b class="text-cyan-300">${d.floodVolume} jt m³</b></span>
+            <span class="text-slate-400">NWL/FWL/MOL: <b class="text-white">${d.normalElev} / ${d.floodElev} / ${d.lowElev} m</b></span>
+            <span class="text-slate-400">PLTA: <b class="text-amber-300">${d.pltaCapacityMW} MW</b></span>
+            <span class="text-slate-400">Inflow avg/puncak: <b class="text-white">${d.inflowAvg} / ${d.inflowMax} m³/s</b></span>
+            <span class="text-slate-400">Atenuasi routing: <b class="${m.att != null && m.att >= 30 ? 'text-emerald-400' : 'text-amber-400'}">${m.att != null ? m.att.toFixed(1) + '%' : '-'}</b></span>
+            <span class="text-slate-400">SF pseudo-statis: <b class="${m.sfPseudo != null && m.sfPseudo >= 1.2 ? 'text-emerald-400' : 'text-rose-400'}">${m.sfPseudo != null ? m.sfPseudo.toFixed(2) : '-'}</b></span>
+            <span class="text-slate-400">Bahaya sesar: <b class="text-rose-300">${d.pgaDesign}g</b> (${d.faultName})</span>
+        </div>
+        <p class="mt-2 text-[11px] text-slate-200"><b class="text-cyan-400">Kesimpulan:</b> ${v.kesimpulan.join('; ')}.</p>
+        <p class="mt-1 text-[11px] text-slate-200"><b class="text-emerald-400">Saran teknis:</b> ${v.solusi.join('; ')}.</p>
+        ${buildSourceLinksHTML(d.shortName + ' bendungan ' + d.province)}
+    </div></div>`;
+    chatBox.innerHTML += card;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    speakBot('Detail teknis ' + d.shortName + ' siap. Kesimpulan: ' + v.kesimpulan[0]);
+}
+async function smartWikiSearch(query) {
+    if (typeof fetch !== 'function') return null;
+    const tryLang = async (lang) => {
+        try {
+            const s = await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srsearch=${encodeURIComponent(query)}&srlimit=1`);
+            const j = await s.json();
+            const hit = j && j.query && j.query.search && j.query.search[0];
+            if (!hit) return null;
+            const r = await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(hit.title)}`);
+            const sj = await r.json();
+            if (!sj || !sj.extract) return null;
+            return { title: sj.title, extract: sj.extract, url: (sj.content_urls && sj.content_urls.desktop && sj.content_urls.desktop.page) || `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(hit.title)}`, lang };
+        } catch (e) { return null; }
+    };
+    return (await tryLang('id')) || (await tryLang('en'));
+}
+async function smartInternetReply(msg) {
+    const chatBox = document.getElementById('chatContainer');
+    const thinkId = 'botThink' + Date.now();
+    chatBox.innerHTML += `<div class="flex mt-2" id="${thinkId}"><div class="bg-slate-800 border border-cyan-800 text-cyan-200 p-2.5 rounded-r-xl rounded-bl-xl text-xs"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Mencari ke sumber internet (Wikipedia, Google, AI)... <span class="text-slate-400 text-[10px]">${msg}</span></div></div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    let wiki = null;
+    try { wiki = await smartWikiSearch(msg); } catch (e) { wiki = null; }
+    const body = wiki
+        ? `<p class="text-[10px] font-bold text-emerald-300 uppercase mb-1"><i class="fa-brands fa-wikipedia-w mr-1"></i>Ditemukan di Wikipedia ${wiki.lang.toUpperCase()} — <b class="text-white">${wiki.title}</b></p>
+           <p class="text-[11px] text-slate-200 leading-relaxed">${wiki.extract.slice(0, 700)}${wiki.extract.length > 700 ? '…' : ''}</p>
+           <a href="${wiki.url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-emerald-300 underline"><i class="fa-solid fa-arrow-up-right-from-square"></i>Baca artikel lengkap</a>`
+        : `<p class="text-[10px] font-bold text-amber-300 uppercase mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Topik tidak ditemukan di basis data aplikasi &amp; ensiklopedia</p>
+           <p class="text-[11px] text-slate-200 leading-relaxed">Pertanyaan Anda memerlukan referensi teknis eksternal. Gunakan tautan sumber berwarna di bawah untuk mencari jawaban terperinci — mesin pencari &amp; AI akan memberikan ringkasan beserta referensinya.</p>`;
+    const el = document.getElementById(thinkId);
+    const card = `<div class="flex mt-2"><div class="max-w-full bg-slate-900 border-l-4 ${wiki ? 'border-emerald-500' : 'border-amber-500'} rounded-r-xl rounded-bl-xl p-3 text-xs leading-relaxed shadow-lg">
+        <p class="font-black text-cyan-300 text-sm mb-1"><i class="fa-solid fa-robot mr-1"></i>Smart Answer — Referensi Internet</p>
+        ${body}
+        ${buildTechAdviceHTML(msg)}
+        ${buildSourceLinksHTML(msg)}
+    </div></div>`;
+    if (el) el.outerHTML = card; else chatBox.innerHTML += card;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    speakBot(wiki ? ('Menurut Wikipedia: ' + wiki.extract.slice(0, 150)) : 'Silakan buka tautan sumber rujukan yang tersedia.');
+}
+
 function processUserChatMessage() {
     const input = document.getElementById('chatInputField');
     const msg = input.value.trim();
@@ -9695,10 +9817,15 @@ function processUserChatMessage() {
     else if (lower.includes('poso')) { triggerChatShortcut('poso_detail'); }
     else if (lower.includes('kerinci')) { triggerChatShortcut('kerinci_detail'); }
     else if (lower.includes('matrix seismik') || lower.includes('monitoring seismik') || lower.includes('matrix site') || lower.includes('multi site')) { triggerChatShortcut('matrix_seismik'); }
-    else if (lower.includes('gempa') || lower.includes('sesar') || lower.includes('seismik')) { triggerChatShortcut('seismik_sesar'); }
+    else if (lower.includes('gempa') || lower.includes('sesar') || lower.includes('seismik')) { triggerChatShortcut('seismik_sesar'); appendSourceRowAfter('gempa bumi sesar aktif bendungan PuSGeN 2024'); }
     else if (lower.includes('aman') || lower.includes('status') || lower.includes('ikk')) { triggerChatShortcut('status_keamanan'); }
     else if (lower.includes('rtd') || lower.includes('eap') || lower.includes('darurat')) { triggerChatShortcut('sop_rtd'); }
-    else { triggerChatShortcut('formula_routing'); }
+    else if (lower.includes('formula') || lower.includes('modified puls') || lower.includes('rumus routing')) { triggerChatShortcut('formula_routing'); }
+    else {
+        const damKey = detectDamInMessage(msg);
+        if (damKey) { renderDamDetailCard(damKey); }
+        else { smartInternetReply(msg); }
+    }
 }
 
 // =========================================================================
@@ -10116,7 +10243,7 @@ function scrollToPolaOperasi() {
 function openScenarioModal() { document.getElementById('scenarioModal').classList.remove('hidden'); }
 function closeScenarioModal() { document.getElementById('scenarioModal').classList.add('hidden'); }
 
-// ==================== [v6.4] DATA TEKNIS DINAMIS: TABEL + RISALAH & METRIK SOLUSI PER BENDUNGAN ====================
+// ==================== [v6.5] DATA TEKNIS DINAMIS: TABEL + RISALAH & METRIK SOLUSI PER BENDUNGAN ====================
 function techSpecDamMetrics(dam) {
     // Metrik mesin aplikasi (konsisten dgn studio pro) untuk dam terkait
     const freeb = Math.max(0.5, dam.floodElev - dam.normalElev + 0.5);
@@ -11456,7 +11583,7 @@ function calculateSiteSpecificSpectrum(basePga, baseSs, baseS1, vs30) {
 }
 
 
-// ==================== [v6.4] MATRIX MULTI-SITE COMMAND CENTRE — MONITORING SEISMIK PER SITE ====================
+// ==================== [v6.5] MATRIX MULTI-SITE COMMAND CENTRE — MONITORING SEISMIK PER SITE ====================
 let seismicMatrixSelected = null;
 let seismicMatrixChartInstance = null;
 let seismicMatrixIsland = 'Semua';
@@ -11761,7 +11888,7 @@ function openSeismicStudioModal() {
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 
-    // [v6.4] restore mode interface terakhir (single/matrix) dalam sesi ini
+    // [v6.5] restore mode interface terakhir (single/matrix) dalam sesi ini
     try { if (sessionStorage.getItem('dam_seismic_mode') === 'matrix') switchSeismicInterfaceMode('matrix'); } catch (e) {}
 
     // Sync with currently active dam in dashboard
