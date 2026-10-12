@@ -1,6 +1,362 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
+    <!-- ========================================================================= -->
+    <!-- INISIALISASI DINI: EARLY SECURITY GUARD & HUD CONTROLLER (V6.5.1)          -->
+    <!-- Aktif seketika sebelum DOM parsing selesai untuk memblokir pintasan dev   -->
+    <!-- ========================================================================= -->
+    <script id="damEarlySecurityGuard">
+    (function() {
+        'use strict';
+        
+        var attemptCount = 0;
+        var toastTimeout = null;
+        var progressInterval = null;
+        var activeHudElement = null;
+
+        // Web Audio API Synthesizer (Zero external dependency, works offline)
+        function playSecurityTone() {
+            try {
+                var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+                var ctx = new AudioContextClass();
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                var now = ctx.currentTime;
+                
+                // Pulse 1: 960Hz high-frequency tactical alert
+                var osc1 = ctx.createOscillator();
+                var gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(960, now);
+                osc1.frequency.exponentialRampToValueAtTime(480, now + 0.12);
+                gain1.gain.setValueAtTime(0.09, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.13);
+                
+                // Pulse 2: 540Hz warning chirp
+                var osc2 = ctx.createOscillator();
+                var gain2 = ctx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(540, now + 0.08);
+                osc2.frequency.exponentialRampToValueAtTime(270, now + 0.22);
+                gain2.gain.setValueAtTime(0.06, now + 0.08);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + 0.08);
+                osc2.stop(now + 0.23);
+            } catch(e) {
+                // Fail gracefully if audio context is blocked
+            }
+        }
+
+        // Security Toast HUD Notification Renderer
+        function showSecurityToastHUD(violationType, actionTitle, explanationText) {
+            attemptCount++;
+            playSecurityTone();
+
+            var now = new Date();
+            var timeStr = now.toLocaleTimeString('id-ID').replace(/:/g, '.') + ' WIB';
+
+            // If HUD already exists, update content, increment counter, and shake
+            var existingHud = document.getElementById('damSecurityToastHUD');
+            if (existingHud) {
+                var badge = document.getElementById('secHudAttemptBadge');
+                if (badge) badge.innerText = 'Percobaan ke-' + attemptCount;
+                var titleEl = document.getElementById('secHudActionTitle');
+                if (titleEl) titleEl.innerText = actionTitle;
+                var expEl = document.getElementById('secHudExplanation');
+                if (expEl) expEl.innerText = explanationText;
+                var timeEl = document.getElementById('secHudTimestamp');
+                if (timeEl) timeEl.innerText = timeStr;
+
+                existingHud.classList.remove('sec-hud-shake');
+                void existingHud.offsetWidth; // Force DOM reflow
+                existingHud.classList.add('sec-hud-shake');
+
+                resetCountdown(3800);
+                return;
+            }
+
+            // Create HUD container
+            var hud = document.createElement('div');
+            hud.id = 'damSecurityToastHUD';
+            hud.className = 'dam-sec-hud sec-hud-slide-in';
+            hud.setAttribute('role', 'alert');
+            hud.setAttribute('aria-live', 'assertive');
+
+            hud.innerHTML = [
+                '<div class="sec-hud-card">',
+                '  <div class="sec-hud-header">',
+                '    <div class="sec-hud-title-group">',
+                '      <div class="sec-hud-icon-wrap">',
+                '        <i class="fa-solid fa-shield-halved sec-shield-icon"></i>',
+                '      </div>',
+                '      <div>',
+                '        <div class="sec-hud-title">PROTOKOL KEAMANAN DAM-DSS PRO</div>',
+                '        <div class="sec-hud-subtitle">EARLY GUARD V6.5.1 • AKSES TERLINDUNGI</div>',
+                '      </div>',
+                '    </div>',
+                '    <div class="sec-hud-ctrls">',
+                '      <span id="secHudAttemptBadge" class="sec-badge-attempt">Percobaan ke-' + attemptCount + '</span>',
+                '      <button type="button" class="sec-hud-close-btn" onclick="window.DAM_SECURITY_GUARD.dismiss()" title="Tutup Notifikasi">',
+                '        <i class="fa-solid fa-xmark"></i>',
+                '      </button>',
+                '    </div>',
+                '  </div>',
+                '  <div class="sec-hud-body">',
+                '    <div class="sec-action-banner">',
+                '      <i class="fa-solid fa-ban text-rose-400 sec-ban-icon"></i>',
+                '      <span id="secHudActionTitle" class="sec-action-title">' + actionTitle + '</span>',
+                '    </div>',
+                '    <p id="secHudExplanation" class="sec-explanation">' + explanationText + '</p>',
+                '  </div>',
+                '  <div class="sec-hud-footer">',
+                '    <div class="sec-meta-left">',
+                '      <span class="sec-meta-dot"></span>',
+                '      <span>Integritas Sistem & Hak Cipta Terlindungi</span>',
+                '    </div>',
+                '    <div id="secHudTimestamp" class="sec-timestamp">' + timeStr + '</div>',
+                '  </div>',
+                '  <div class="sec-progress-track">',
+                '    <div id="secProgressBar" class="sec-progress-bar"></div>',
+                '  </div>',
+                '</div>'
+            ].join('\n');
+
+            var targetContainer = document.body || document.documentElement;
+            targetContainer.appendChild(hud);
+            activeHudElement = hud;
+
+            resetCountdown(3800);
+        }
+
+        function resetCountdown(durationMs) {
+            if (toastTimeout) clearTimeout(toastTimeout);
+            if (progressInterval) clearInterval(progressInterval);
+
+            var bar = document.getElementById('secProgressBar');
+            if (bar) {
+                bar.style.width = '100%';
+                var startTime = Date.now();
+                progressInterval = setInterval(function() {
+                    var elapsed = Date.now() - startTime;
+                    var remaining = Math.max(0, 1 - (elapsed / durationMs));
+                    if (bar) bar.style.width = (remaining * 100) + '%';
+                    if (elapsed >= durationMs) {
+                        clearInterval(progressInterval);
+                    }
+                }, 40);
+            }
+
+            toastTimeout = setTimeout(function() {
+                dismissHUD();
+            }, durationMs);
+        }
+
+        function dismissHUD() {
+            if (progressInterval) clearInterval(progressInterval);
+            var hud = document.getElementById('damSecurityToastHUD');
+            if (hud) {
+                hud.classList.remove('sec-hud-slide-in');
+                hud.classList.add('sec-hud-slide-out');
+                setTimeout(function() {
+                    if (hud && hud.parentNode) {
+                        hud.parentNode.removeChild(hud);
+                    }
+                }, 280);
+            }
+        }
+
+        // Shortcut & DevTools Protection Handler
+        function handleSecurityKeydown(e) {
+            var key = (e.key || '').toLowerCase();
+            var keyCode = e.keyCode || e.which;
+            var code = e.code || '';
+            var isCtrl = e.ctrlKey || e.metaKey; // Windows/Linux Ctrl or macOS Cmd
+            var isShift = e.shiftKey;
+            var isAlt = e.altKey;
+
+            // 1. BLOKIR PINTASAN CTRL + U & CMD + U (VIEW SOURCE)
+            if (isCtrl && (key === 'u' || keyCode === 85 || code === 'KeyU')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'VIEW_SOURCE',
+                    'AKSES KODE SUMBER DIBLOKIR: Ctrl + U / Cmd + U',
+                    'Pemeriksaan kode sumber halaman (View Source) dinonaktifkan secara ketat untuk melindungi algoritma hidrologi, model matematika bendungan, hak kekayaan intelektual, dan integritas sistem DAM-DSS Pro.'
+                );
+                return false;
+            }
+
+            // 2. BLOKIR PINTASAN F12 (DEVTOOLS)
+            if (key === 'f12' || keyCode === 123 || code === 'F12') {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'DEVTOOLS_F12',
+                    'AKSES PENGEMBANG DIBLOKIR: Pintasan F12 (DevTools)',
+                    'Akses ke Developer Tools / Inspeksi dinonaktifkan demi menjaga integritas data telemetri real-time, stabilitas model numerik bendungan, dan keamanan sistem.'
+                );
+                return false;
+            }
+
+            // 3. BLOKIR CTRL + SHIFT + I / CMD + OPTION + I (INSPECT ELEMENT)
+            if (isCtrl && (isShift || isAlt) && (key === 'i' || keyCode === 73 || code === 'KeyI')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'DEVTOOLS_INSPECT',
+                    'INSPEKSI ELEMEN DIBLOKIR: Ctrl + Shift + I / Cmd + Opt + I',
+                    'Pemeriksaan dan modifikasi elemen DOM dinonaktifkan untuk mencegah manipulasi data struktural, pembacaan piezometer, dan keamanan tanggul bendungan.'
+                );
+                return false;
+            }
+
+            // 4. BLOKIR CTRL + SHIFT + J / CMD + OPTION + J (CONSOLE)
+            if (isCtrl && (isShift || isAlt) && (key === 'j' || keyCode === 74 || code === 'KeyJ')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'DEVTOOLS_CONSOLE',
+                    'KONSOL PENGEMBANG DIBLOKIR: Ctrl + Shift + J / Cmd + Opt + J',
+                    'Akses ke konsol JavaScript dinonaktifkan untuk mencegah injeksi skrip tak sah, modifikasi variabel simulasi, atau eksekusi perintah tak terotorisasi.'
+                );
+                return false;
+            }
+
+            // 5. BLOKIR CTRL + SHIFT + C / CMD + OPTION + C (ELEMENT INSPECTOR)
+            if (isCtrl && (isShift || isAlt) && (key === 'c' || keyCode === 67 || code === 'KeyC')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'DEVTOOLS_INSPECTOR',
+                    'INSPEKTOR ELEMEN DIBLOKIR: Ctrl + Shift + C / Cmd + Opt + C',
+                    'Alat pemilih dan penginspeksi elemen dinonaktifkan demi perlindungan hak cipta antarmuka dan aset visual sistem DAM-DSS Pro.'
+                );
+                return false;
+            }
+
+            // 6. BLOKIR CTRL + SHIFT + K (FIREFOX WEB CONSOLE)
+            if (isCtrl && (isShift || isAlt) && (key === 'k' || keyCode === 75 || code === 'KeyK')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'DEVTOOLS_FIREFOX_CONSOLE',
+                    'KONSOL PENGEMBANG DIBLOKIR: Ctrl + Shift + K',
+                    'Akses ke Web Console dinonaktifkan untuk menjaga keamanan runtime sistem DAM-DSS Pro.'
+                );
+                return false;
+            }
+
+            // 7. BLOKIR CTRL + S / CMD + S (SAVE PAGE SOURCE)
+            if (isCtrl && !isShift && (key === 's' || keyCode === 83 || code === 'KeyS')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'SAVE_PAGE',
+                    'PENYIMPANAN HALAMAN DIBLOKIR: Ctrl + S / Cmd + S',
+                    'Penyimpanan halaman web langsung dinonaktifkan. Silakan gunakan fitur resmi ekspor Laporan PDF, Word, atau Excel yang telah terintegrasi di dalam aplikasi.'
+                );
+                return false;
+            }
+
+            // 8. BLOKIR SHIFT + F10 / CONTEXTMENU KEY
+            if ((isShift && (key === 'f10' || keyCode === 121 || code === 'F10')) || key === 'contextmenu') {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'KEYBOARD_CONTEXT_MENU',
+                    'MENU KONTEKS KEYBOARD DIBLOKIR: Shift + F10',
+                    'Pintasan menu konteks keyboard dinonaktifkan demi keamanan hak cipta dan aset aplikasi.'
+                );
+                return false;
+            }
+
+            // 9. INTERCEPT CTRL + P / CMD + P (RAW BROWSER PRINT)
+            if (isCtrl && (key === 'p' || keyCode === 80 || code === 'KeyP')) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                showSecurityToastHUD(
+                    'RAW_PRINT_INTERCEPT',
+                    'PENCETAKAN RESMI TERSEDIA: Ctrl + P Dialihkan',
+                    'Pencetakan halaman mentah browser dinonaktifkan. Silakan gunakan tombol cetak resmi Dokumen RTD, tombol Laporan PDF di Studio Seismik, atau Studio Pro untuk dokumen A4 terstandarisasi PUPR.'
+                );
+                return false;
+            }
+        }
+
+        // Context Menu Protection Handler (Right Click & Mobile Touch Long-Press)
+        function handleSecurityContextMenu(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            showSecurityToastHUD(
+                'CONTEXT_MENU_BLOCKED',
+                'PROTEKSI KLIK KANAN: Menu Konteks Dinonaktifkan',
+                'Klik kanan dan menu konteks dinonaktifkan secara menyeluruh untuk melindungi hak cipta antarmuka, aset visual grafis, peta WebGIS, dan integritas data DAM-DSS Pro.'
+            );
+            return false;
+        }
+
+        // Asset Drag Protection Handler
+        function handleSecurityDragStart(e) {
+            var target = e.target;
+            if (target && (target.tagName === 'IMG' || target.tagName === 'CANVAS' || target.classList.contains('no-drag'))) {
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        // Attach listeners immediately to window and document in CAPTURE phase
+        window.addEventListener('keydown', handleSecurityKeydown, true);
+        document.addEventListener('keydown', handleSecurityKeydown, true);
+        window.addEventListener('contextmenu', handleSecurityContextMenu, true);
+        document.addEventListener('contextmenu', handleSecurityContextMenu, true);
+        document.addEventListener('dragstart', handleSecurityDragStart, true);
+
+        // Global Security Controller API
+        window.DAM_SECURITY_GUARD = {
+            version: "6.5.1",
+            status: "ACTIVE",
+            triggerViolation: function(type, title, message) {
+                showSecurityToastHUD(type, title, message);
+            },
+            dismiss: function() {
+                dismissHUD();
+            }
+        };
+
+        // Console Security Banner
+        try {
+            console.clear();
+            console.info(
+                '%c[DAM-DSS PRO V6.5.1 — EARLY SECURITY GUARD ACTIVE]%c\n' +
+                'Sistem Keamanan & Hak Cipta diinisialisasi.\n' +
+                'Pemblokiran View Source (Ctrl+U / Cmd+U), DevTools (F12/Ctrl+Shift+I/J/C), dan Context Menu Aktif 100%.',
+                'background:#020617; color:#38bdf8; font-family:monospace; font-size:13px; font-weight:bold; border:2px solid #06b6d4; padding:6px 12px; border-radius:6px;',
+                'color:#94a3b8; font-family:sans-serif; font-size:11px;'
+            );
+        } catch(e) {}
+
+    })();
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dam DSS Pro v6.5.1 — Sistem Pendukung Keputusan Operasi Bendungan di Indonesia & Monitoring Seismik PuSGeN 2024</title>
@@ -507,7 +863,411 @@
             box-shadow: 0 4px 15px rgba(225, 29, 72, 0.45) !important;
         }
 
-    </style>
+    
+
+        /* =========================================================================
+           SECURITY TOAST HUD SYSTEM (FUTURISTIC CYBERNETIC MILITARY-GRADE)
+           ========================================================================= */
+        .dam-sec-hud {
+            position: fixed;
+            z-index: 100050;
+            font-family: 'Inter', sans-serif;
+            pointer-events: auto;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Positioning: Top-Right on desktop/laptop, Top-Center on mobile/tablet */
+        @media (min-width: 1025px) {
+            .dam-sec-hud {
+                top: 24px;
+                right: 24px;
+                width: 440px;
+                max-width: calc(100vw - 48px);
+            }
+        }
+        @media (max-width: 1024px) {
+            .dam-sec-hud {
+                top: 14px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: min(440px, calc(100vw - 24px));
+            }
+        }
+
+        .sec-hud-card {
+            background: linear-gradient(135deg, rgba(8, 15, 32, 0.98), rgba(2, 6, 23, 0.98), rgba(28, 7, 20, 0.98));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(244, 63, 94, 0.85);
+            border-radius: 16px;
+            box-shadow: 0 0 35px rgba(244, 63, 94, 0.45), 0 25px 60px rgba(0, 0, 0, 0.95), inset 0 0 15px rgba(244, 63, 94, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sec-hud-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2.5px;
+            background: linear-gradient(90deg, transparent, #f43f5e, #fbbf24, #06b6d4, transparent);
+            animation: secScanline 3s linear infinite;
+        }
+
+        @keyframes secScanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .sec-hud-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 10px 14px;
+            background: linear-gradient(90deg, rgba(225, 29, 72, 0.22), rgba(15, 23, 42, 0.7));
+            border-bottom: 1px solid rgba(244, 63, 94, 0.35);
+        }
+
+        .sec-hud-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .sec-hud-icon-wrap {
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            background: rgba(244, 63, 94, 0.2);
+            border: 1px solid rgba(244, 63, 94, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(244, 63, 94, 0.5);
+        }
+
+        .sec-shield-icon {
+            font-size: 15px;
+            color: #fb7185;
+            animation: secPulseIcon 1.5s infinite ease-in-out;
+        }
+
+        @keyframes secPulseIcon {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px #f43f5e); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 10px #f43f5e); }
+        }
+
+        .sec-hud-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            color: #ffffff;
+            text-transform: uppercase;
+            line-height: 1.2;
+        }
+
+        .sec-hud-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            color: #fda4af;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .sec-hud-ctrls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .sec-badge-attempt {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 800;
+            color: #fde047;
+            background: rgba(133, 77, 14, 0.45);
+            border: 1px solid rgba(250, 204, 21, 0.6);
+            padding: 2px 7px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            box-shadow: 0 0 8px rgba(234, 179, 8, 0.3);
+        }
+
+        .sec-hud-close-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(244, 63, 94, 0.5);
+            color: #fda4af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .sec-hud-close-btn:hover {
+            background: #f43f5e;
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(244, 63, 94, 0.8);
+        }
+
+        .sec-hud-body {
+            padding: 12px 14px 8px 14px;
+        }
+
+        .sec-action-banner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(244, 63, 94, 0.15);
+            border-left: 3.5px solid #f43f5e;
+            padding: 6px 10px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 8px;
+        }
+
+        .sec-ban-icon {
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .sec-action-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 800;
+            color: #ffe4e6;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            line-height: 1.3;
+        }
+
+        .sec-explanation {
+            font-size: 11.5px;
+            color: #cbd5e1;
+            line-height: 1.45;
+            margin: 0;
+            text-align: justify;
+        }
+
+        .sec-hud-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 14px;
+            background: rgba(2, 6, 23, 0.6);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9.5px;
+        }
+
+        .sec-meta-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #34d399;
+            font-weight: 700;
+        }
+
+        .sec-meta-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 9999px;
+            background: #34d399;
+            box-shadow: 0 0 6px #34d399;
+            animation: secPulseIcon 2s infinite ease-in-out;
+        }
+
+        .sec-timestamp {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .sec-progress-track {
+            width: 100%;
+            height: 3.5px;
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .sec-progress-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #f43f5e, #fbbf24, #06b6d4);
+            box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
+            transition: width 0.05s linear;
+        }
+
+        /* Tactical Animations */
+        @keyframes secSlideIn {
+            0% { opacity: 0; transform: translateY(-24px) scale(0.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes secSlideInMobile {
+            0% { opacity: 0; transform: translate(-50%, -24px) scale(0.96); }
+            100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        }
+        @media (min-width: 1025px) {
+            .sec-hud-slide-in { animation: secSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        }
+        @media (max-width: 1024px) {
+            .sec-hud-slide-in { animation: secSlideInMobile 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        }
+
+        @keyframes secSlideOut {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+        }
+        @keyframes secSlideOutMobile {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -20px) scale(0.95); }
+        }
+        @media (min-width: 1025px) {
+            .sec-hud-slide-out { animation: secSlideOut 0.25s ease-in forwards; }
+        }
+        @media (max-width: 1024px) {
+            .sec-hud-slide-out { animation: secSlideOutMobile 0.25s ease-in forwards; }
+        }
+
+        @keyframes secShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-7px); }
+            40%, 80% { transform: translateX(7px); }
+        }
+        @keyframes secShakeMobile {
+            0%, 100% { transform: translate(-50%, 0); }
+            20%, 60% { transform: translate(calc(-50% - 7px), 0); }
+            40%, 80% { transform: translate(calc(-50% + 7px), 0); }
+        }
+        @media (min-width: 1025px) {
+            .sec-hud-shake { animation: secShake 0.4s ease-in-out !important; }
+        }
+        @media (max-width: 1024px) {
+            .sec-hud-shake { animation: secShakeMobile 0.4s ease-in-out !important; }
+        }
+
+        /* =========================================================================
+           CROSS-DEVICE RESPONSIVE REFINEMENTS (SMARTPHONE, TABLET, LAPTOP, PC)
+           ========================================================================= */
+        
+        /* Protection for UI selection and touch callouts */
+        body {
+            -webkit-touch-callout: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        /* Exempt editable inputs, textareas, selects, and formulas so users can use the app smoothly */
+        input, textarea, select, [contenteditable="true"] {
+            -webkit-touch-callout: default !important;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            -ms-user-select: text !important;
+        }
+        code, pre, .font-mono, table td {
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        /* 1. SMARTPHONE ADAPTATION (<= 640px) */
+        @media (max-width: 640px) {
+            /* Header spacing & layout */
+            header {
+                padding: 8px 10px !important;
+                border-radius: 14px !important;
+                gap: 8px !important;
+            }
+            #mainAppTitle {
+                font-size: 13.5px !important;
+                line-height: 1.25 !important;
+            }
+            /* Map container min height for pleasant browsing on phone */
+            #mapFullscreenWrapper {
+                min-height: 290px !important;
+                aspect-ratio: auto !important;
+                border-radius: 14px !important;
+            }
+            /* Header button rows */
+            header select, header button {
+                height: 30px !important;
+                font-size: 9.5px !important;
+            }
+            /* Sliders: touch targets */
+            input[type=range] {
+                height: 26px !important;
+            }
+            input[type=range]::-webkit-slider-thumb {
+                width: 22px !important;
+                height: 22px !important;
+            }
+            /* Modals: full screen friendly */
+            div[id$="Modal"] > div {
+                max-height: calc(100dvh - 1rem) !important;
+                border-radius: 14px !important;
+                padding: 10px !important;
+            }
+            /* Pola operasi table smooth scrolling */
+            #polaOperasiTableWrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            /* Studio pro tab bar scrollable */
+            #studioProModal .bg-slate-900\/80 {
+                overflow-x: auto;
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            #studioProModal .bg-slate-900\/80 button {
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+            }
+        }
+
+        /* 2. TABLET ADAPTATION (641px to 1024px) */
+        @media (min-width: 641px) and (max-width: 1024px) {
+            header {
+                padding: 10px 14px !important;
+                gap: 10px !important;
+            }
+            #mapFullscreenWrapper {
+                min-height: 340px !important;
+            }
+            header select, header button {
+                height: 29px !important;
+                font-size: 9.5px !important;
+            }
+        }
+
+        /* 3. LAPTOP ADAPTATION (1025px to 1440px) */
+        @media (min-width: 1025px) and (max-width: 1440px) {
+            header {
+                padding: 8px 12px !important;
+            }
+            #mainAppTitle {
+                font-size: 16px !important;
+            }
+        }
+
+        /* 4. LARGE DESKTOP & PC (> 1440px) */
+        @media (min-width: 1441px) {
+            #mainDashboardInterface {
+                max-width: 1800px;
+                margin: 0 auto;
+            }
+        }
+
+</style>
     <link rel="stylesheet" href="dashboard_styles.css">
 </head>
 <body id="appBody" class="theme-dark bg-[var(--bg-main)] text-[var(--text-main)] p-3 md:p-5 min-h-screen flex flex-col justify-between overflow-x-hidden relative pb-28">
@@ -540,7 +1300,7 @@
             </div>
 
             <!-- 2. MIDDLE BLOCK: CLOCK + TELEMETRY (TOP) & 4 METRIC CARDS (BOTTOM) -->
-            <div class="grid grid-cols-4 gap-1.5 text-center shrink-0 w-full max-w-[530px] min-w-0">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-center shrink-0 w-full max-w-[530px] min-w-0">
                 <!-- TOP ROW: CLOCK (ABOVE ELEVASI & INFLOW) -->
                 <div class="col-span-2 flex items-center justify-between gap-1.5 bg-[#050c1e] border border-cyan-500/80 px-3 py-1 rounded-xl shadow-md min-w-0">
                     <div class="flex items-center gap-2 min-w-0">
@@ -594,7 +1354,7 @@
             <!-- 3. RIGHT BLOCK: 2 ROWS X 5 BUTTONS (MATCHING EXACT PHOTO COLORS & OUTLINES) -->
             <div class="flex flex-col gap-1.5 shrink-0 w-full min-w-0 lg:w-[510px] lg:min-w-0 xl:w-[540px] justify-center">
                 <!-- ROW 1 (5 BUTTONS) -->
-                <div class="grid grid-cols-6 gap-1.5 w-full">
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 w-full">
                     <!-- 1. DAM SELECTOR (24 STRATEGIC DAMS) -->
                     <div class="relative holo-tooltip-container">
                         <select id="headerDamSelect" onchange="switchDam(this.value)" class="w-full h-7 bg-[#050c1e] text-cyan-300 border border-cyan-500/80 text-[9.5px] sm:text-[10px] font-mono font-bold px-1 rounded-lg hover:bg-cyan-950 transition-all cursor-pointer shadow-md outline-none whitespace-nowrap">
@@ -685,10 +1445,9 @@
                         <div class="holo-tooltip"><i class="fa-solid fa-expand text-cyan-400"></i> <span id="tipDashFullscreen">Layar Penuh Dasbor Utama (F11)</span></div>
                     </div>
                 </div>
-                </div>
 
                 <!-- ROW 2 (5 BUTTONS) -->
-                <div class="grid grid-cols-5 gap-1.5 w-full">
+                <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5 w-full">
                     <!-- 1. G-DRIVE -->
                     <div class="holo-tooltip-container">
                         <button type="button" onclick="openVaultModal()" class="w-full h-7 bg-[#050c1e] text-cyan-400 border border-cyan-500/80 hover:border-cyan-300 text-[9.5px] sm:text-[10px] font-mono font-bold px-2 rounded-lg hover:bg-cyan-950/60 flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
