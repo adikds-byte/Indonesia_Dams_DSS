@@ -359,7 +359,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dam DSS Pro v6.5.1 — Sistem Pendukung Keputusan Operasi Bendungan di Indonesia & Monitoring Seismik PuSGeN 2024</title>
+    <title>Dam DSS Pro v7.1.1 — Sistem Pendukung Keputusan Operasi Bendungan di Indonesia & Monitoring Seismik PuSGeN 2024</title>
     
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -1365,6 +1365,9 @@
                                 <option value="sampeanbaru">💧 SAMPEAN BARU (Bondowoso)</option>
                                 <option value="bening">🌾 BENING (Madiun)</option>
                                 <option value="klampis">🌾 KLAMPIS (Madura)</option>
+                            <option value="sengguruh">💧 SENGGURUH (Malang)</option>
+                                <option value="lahor">💧 LAHOR (Malang)</option>
+                                <option value="pondok">🌾 PONDOK (Madura)</option>
                             </optgroup>
                             <optgroup label="Jawa Barat & Banten (Citarum & Cimanuk)">
                                 <option value="cirata">⚡ CIRATA (1.008 MW)</option>
@@ -1399,7 +1402,7 @@
                                 <option value="meninting">💧 MENINTING (Lombok Barat)</option>
                                 <option value="bintangbano">💧 BINTANG BANO (Sumbawa Barat)</option>
                                 <option value="tiusuntuk">💧 TIU SUNTUK (Sumbawa Barat)</option>
-                            </optgroup>
+                            <option value="tilong">🌾 TILONG (Kupang NTT)</option></optgroup>
                             <optgroup label="Maluku (Buru)">
                                 <option value="wayapu">💧 WAY APU (Buru)</option>
                             </optgroup>
@@ -2183,7 +2186,7 @@
             <button type="button" onclick="toggleHydrologyHUD()" class="bg-cyan-600 hover:bg-cyan-500 text-white border border-cyan-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_18px_rgba(6,182,212,0.7)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Buka HUD Operasi Waduk & Spillway">
                 <i class="fa-solid fa-gauge-high text-sm text-cyan-100"></i>
             </button>
-            <button type="button" onclick="openStudioPro()" class="bg-teal-600 hover:bg-teal-500 text-white border border-teal-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Studio Analisis Profesional (Routing, Stabilitas, AHP, Monte Carlo, CBA)">
+            <button type="button" onclick="openPuprModal()" class="bg-cyan-900 hover:bg-cyan-800 text-cyan-200 border border-cyan-600/50 font-bold px-3 py-2 rounded-xl text-[10px] font-mono transition shadow flex items-center gap-1.5"><i class="fa-solid fa-map-location-dot text-cyan-300"></i> DIREKTORI PUPR</button> <button type="button" onclick="openStudioPro()" class="bg-teal-600 hover:bg-teal-500 text-white border border-teal-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-[0_0_15px_rgba(20,184,166,0.6)] flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Studio Analisis Profesional (Routing, Stabilitas, AHP, Monte Carlo, CBA)">
                 <i class="fa-solid fa-microscope text-sm"></i>
             </button>
             <button type="button" onclick="location.reload()" class="bg-rose-600 hover:bg-rose-500 text-white border border-rose-400 h-9 w-9 sm:h-11 sm:w-11 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110 shrink-0 cursor-pointer" title="Refresh Dasbor">
@@ -2211,7 +2214,23 @@
         </button>
     </div>
 
-    <!-- ==================== STUDIO ANALISIS PROFESIONAL DAM DSS ==================== -->
+    <!-- ==================== STUDIO ANALISIS PROFESIONAL DAM DSS ====================<!-- ============ MODAL DIREKTORI BENDUNGAN PUPR v7.1 ============ -->
+<div id="puprDirModal" class="fixed inset-0 z-[160] hidden bg-slate-950/90 backdrop-blur-sm items-center justify-center p-3 font-mono" onclick="if(event.target===this)closePuprModal()">
+  <div class="bg-slate-900 border-2 border-cyan-500/60 rounded-2xl w-full max-w-2xl max-h-[82vh] flex flex-col">
+    <div class="p-3 border-b border-cyan-800/60 flex items-center justify-between gap-2">
+      <h3 class="text-sm font-bold text-cyan-300"><i class="fa-solid fa-map-location-dot mr-1.5"></i> DIREKTORI BENDUNGAN PUPR / BALAI TEKNIS BENDUNGAN <span id="puprDirCount" class="text-amber-300 text-xs"></span></h3>
+      <button onclick="closePuprModal()" class="w-8 h-8 rounded-lg bg-rose-700 hover:bg-rose-600 text-white text-xs font-black">X</button>
+    </div>
+    <div class="p-2.5 border-b border-slate-800 flex gap-2">
+      <input id="puprDirSearch" oninput="renderPuprList(this.value)" placeholder="Cari nama bendungan / provinsi..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-400">
+      <button id="btnPuprLayer" onclick="togglePuprLayer()" class="px-3 py-2 rounded-xl bg-slate-800 border border-cyan-600/50 text-cyan-300 text-[10px] font-bold hover:bg-slate-700"><i class="fa-solid fa-layer-group mr-1"></i>LAPISAN PETA</button>
+    </div>
+    <div id="puprDirList" class="p-2.5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 overflow-y-auto"></div>
+    <div class="p-2 border-t border-slate-800 text-center text-[9px] text-slate-400">Sumber data lokasi: Peta Resmi Kementerian PUPR / Balai Teknis Bendungan — Koordinat terkalibrasi 18 Okt 2026</div>
+  </div>
+</div>
+
+     -->
     <div id="studioProModal" class="fixed inset-0 z-[130] hidden bg-slate-950/95 backdrop-blur-md overflow-y-auto">
         <div class="min-h-full flex flex-col p-2 sm:p-4">
             <!-- HEADER -->
@@ -2242,7 +2261,7 @@
             </div>
             <div class="bg-slate-900/60 border-x border-b border-slate-800 flex-1 p-2 sm:p-4">
 
-                <!-- [v6.5.1] STRIP KONTEKS BENDUNGAN TERPILIH (sinkron semua tab) -->
+                <!-- [v7.0] STRIP KONTEKS BENDUNGAN TERPILIH (sinkron semua tab) -->
                 <div id="proDamContextBar" class="mb-3 bg-slate-950/85 border border-cyan-800/60 rounded-xl px-3 py-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] font-mono"></div>
 
                 <!-- [v6.5.1] ===== PANE 0: PETA & POLA OPERASI ===== -->
@@ -2406,6 +2425,14 @@
                     </div>
                 </div>
 
+            </div>
+            <!-- ====== RISALAH TEKNIS, SARAN & KESIMPULAN (v7.0) ====== -->
+            <div id="proRisalahPanel" class="hidden bg-slate-900/95 border border-emerald-700/50 rounded-2xl m-2 p-3">
+                <div class="flex items-center justify-between border-b border-emerald-800/50 pb-2 mb-2">
+                    <h4 class="font-bold text-emerald-300 text-xs font-mono"><i class="fa-solid fa-file-lines mr-1.5"></i> RISALAH TEKNIS, SARAN &amp; KESIMPULAN — <span id="proRisalahDam" class="text-white"></span></h4>
+                    <button onclick="document.getElementById('proRisalahPanel').classList.add('hidden')" class="text-slate-400 hover:text-rose-300 text-[10px] font-mono px-2 py-1 rounded border border-slate-700">TUTUP</button>
+                </div>
+                <div id="proRisalahBody" class="grid grid-cols-1 lg:grid-cols-3 gap-2"></div>
             </div>
             <div class="bg-slate-900 border-x border-b border-cyan-800/60 rounded-b-2xl p-2 text-center">
                 <p class="text-[9px] text-slate-400 font-mono">© 2026 DAM DECISION SUPPORT SYSTEM (DAM-DSS PRO v5.2.1) — Pemodelan Terintegrasi Bendungan Poso-1 &amp; Bendungan Kerinci | Rekayasa Sumber Daya Air &amp; AI Engineering</p>
@@ -3583,6 +3610,277 @@
 // =========================================================================
 // 1. DATA MASTER BENDUNGAN POSO-1 & BENDUNGAN KERINCI
 // =========================================================================
+/* ====== DAM DATA BARU v7.0 (8 bendungan — 4 lengkapi dropdown + 4 baru) ====== */
+const DAM_DATA_BARU = {
+selorejo: {
+        "id": "selorejo",
+        "name": "Bendungan Selorejo (PLTA 4.6 MW)",
+        "shortName": "Selorejo",
+        "type": "Zonal Earthfill (Tipe Urugan Zonal)",
+        "province": "Jawa Timur",
+        "district": "Kabupaten Malang (Ngantang)",
+        "locationStr": "Kec. Ngantang, Kab. Malang, Jawa Timur",
+        "river": "Sungai Konto ( anak Brantas )",
+        "timezone": "WIB",
+        "coords": [-7.858, 112.483], "zoom": 12,
+        "normalElev": 386.0, "floodElev": 389.5, "lowElev": 375.0,
+        "normalVolume": 34.4, "floodVolume": 43.0, "deadVolume": 8.5,
+        "inflowAvg": 22.0, "inflowMax": 320.0,
+        "designHead": 47.0, "pltaCapacityMW": 4.6, "turbinMaxDischarge": 12.0,
+        "spillwayWidth": 42.0, "pgaDesign": 0.35,
+        "faultName": "Sesar Kelut & Sesar Brantas Selatan (indikatif)",
+        "inundationRiverName": "Sungai Brantas (Ngantang - Kediri)",
+        "structures": [
+            { name: "Badan Bendungan Selorejo", type: "dam_body", coords: [-7.858, 112.483], desc: "Urugan zonal tinggi 50 m, panjang mahkota 568 m, volume urugan 1,46 juta m3." },
+            { name: "Spillway & Jaring Intake PLTA", type: "spillway", coords: [-7.861, 112.486], desc: "Spillway tepi + intake terowong menuju PLTA 4,6 MW." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Waduk Selorejo", type: "tma", coords: [-7.857, 112.484] },
+            { name: "Pos Hujan Ngantang", type: "rain", coords: [-7.852, 112.490] }
+        ],
+        "instruments": [
+            { name: "Piezometer Badan Bendungan", type: "piezo", coords: [-7.858, 112.483] },
+            { name: "Levelling Monumen Settlement", type: "survey", coords: [-7.860, 112.485] }
+        ],
+        "catchmentPolygon": [[[-7.80, 112.45],[-7.80, 112.52],[-7.92, 112.52],[-7.92, 112.45]]],
+        "inundationPolygon": [[[-7.858, 112.483],[-7.875, 112.478],[-7.900, 112.470],[-7.905, 112.465],[-7.858, 112.483]]],
+        "flowPath": [[-7.861, 112.486],[-7.88, 112.472],[-7.92, 112.455],[-7.99, 112.40]]
+},
+sampeanbaru: {
+        "id": "sampeanbaru",
+        "name": "Bendungan Sampean Baru (PLTA 2.8 MW)",
+        "shortName": "Sampean Baru",
+        "type": "Concrete Arch (Busur Beton)",
+        "province": "Jawa Timur",
+        "district": "Kabupaten Bondowoso (Sumberwringin)",
+        "locationStr": "Kec. Sumberwringin, Kab. Bondowoso, Jawa Timur",
+        "river": "Sungai Sampean",
+        "timezone": "WIB",
+        "coords": [-7.915, 113.905], "zoom": 12,
+        "normalElev": 208.0, "floodElev": 211.0, "lowElev": 197.0,
+        "normalVolume": 29.9, "floodVolume": 36.0, "deadVolume": 7.0,
+        "inflowAvg": 18.5, "inflowMax": 260.0,
+        "designHead": 42.0, "pltaCapacityMW": 2.8, "turbinMaxDischarge": 8.0,
+        "spillwayWidth": 36.0, "pgaDesign": 0.30,
+        "faultName": "Sesar Ijen & Zona Vulkanik Ijen (indikatif)",
+        "inundationRiverName": "Sungai Sampean Hilir (Bondowoso - Situbondo)",
+        "structures": [
+            { name: "Badan Bendungan Busur Sampean Baru", type: "dam_body", coords: [-7.915, 113.905], desc: "Busur beton tinggi 58 m, panjang mahkota 118 m." },
+            { name: "Spillway 3 Gerbang & Intake PLTA", type: "spillway", coords: [-7.917, 113.908], desc: "Spillway permukaan 3 gerbang radial + intake PLTA 2x1,4 MW." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Sampean Baru", type: "tma", coords: [-7.914, 113.906] },
+            { name: "Pos Hujan Sumberwringin", type: "rain", coords: [-7.908, 113.912] }
+        ],
+        "instruments": [
+            { name: "Plumb Line & Inclinometer", type: "incli", coords: [-7.915, 113.905] },
+            { name: "V-notch Drainase", type: "vnotch", coords: [-7.916, 113.907] }
+        ],
+        "catchmentPolygon": [[[-7.85, 113.86],[-7.85, 113.95],[-7.97, 113.95],[-7.97, 113.86]]],
+        "inundationPolygon": [[[-7.915, 113.905],[-7.935, 113.895],[-7.960, 113.885],[-7.968, 113.880],[-7.915, 113.905]]],
+        "flowPath": [[-7.917, 113.908],[-7.95, 113.89],[-8.00, 113.86],[-8.05, 113.82]]
+},
+bening: {
+        "id": "bening",
+        "name": "Bendungan Bening (Widas)",
+        "shortName": "Bening",
+        "type": "Homogeneous Earthfill (Urugan Homogen)",
+        "province": "Jawa Timur",
+        "district": "Kabupaten Ngawi (Bringin / Sine)",
+        "locationStr": "Desa Bening, Kec. Bringin, Kab. Ngawi, Jawa Timur",
+        "river": "Sungai Widas ( anak Bengawan Solo )",
+        "timezone": "WIB",
+        "coords": [-7.452, 111.545], "zoom": 12,
+        "normalElev": 92.0, "floodElev": 95.0, "lowElev": 82.0,
+        "normalVolume": 22.0, "floodVolume": 28.0, "deadVolume": 5.5,
+        "inflowAvg": 8.0, "inflowMax": 120.0,
+        "designHead": 30.0, "pltaCapacityMW": 1.9, "turbinMaxDischarge": 7.5,
+        "spillwayWidth": 30.0, "pgaDesign": 0.25,
+        "faultName": "Sesar Kendeng (indikatif)",
+        "inundationRiverName": "Sungai Widas Hilir (Ngawi)",
+        "structures": [
+            { name: "Badan Bendungan Bening", type: "dam_body", coords: [-7.452, 111.545], desc: "Urugan homogen tinggi 57 m, melayani irigasi & PLTMH 1,9 MW." },
+            { name: "Spillway Tepi 2 Gerbang", type: "spillway", coords: [-7.454, 111.548], desc: "Spillway tepi 2 gerbang radial." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Bening", type: "tma", coords: [-7.451, 111.546] },
+            { name: "Pos Hujan Bringin", type: "rain", coords: [-7.446, 111.552] }
+        ],
+        "instruments": [
+            { name: "Piezometer Badan Bendungan", type: "piezo", coords: [-7.452, 111.545] },
+            { name: "Titik Levelling GPS", type: "survey", coords: [-7.453, 111.547] }
+        ],
+        "catchmentPolygon": [[[-7.39, 111.50],[-7.39, 111.59],[-7.51, 111.59],[-7.51, 111.50]]],
+        "inundationPolygon": [[[-7.452, 111.545],[-7.470, 111.538],[-7.495, 111.530],[-7.502, 111.526],[-7.452, 111.545]]],
+        "flowPath": [[-7.454, 111.548],[-7.48, 111.53],[-7.52, 111.51],[-7.56, 111.49]]
+},
+klampis: {
+        "id": "klampis",
+        "name": "Bendungan Klampis",
+        "shortName": "Klampis",
+        "type": "Earthfill (Urugan)",
+        "province": "Jawa Timur",
+        "district": "Kabupaten Sampang (Madura)",
+        "locationStr": "Kec. Klampis, Kab. Sampang, Madura",
+        "river": "Sungai Klampis",
+        "timezone": "WIB",
+        "coords": [-7.055, 113.390], "zoom": 12,
+        "normalElev": 46.0, "floodElev": 48.0, "lowElev": 38.0,
+        "normalVolume": 5.6, "floodVolume": 7.0, "deadVolume": 1.2,
+        "inflowAvg": 2.5, "inflowMax": 40.0,
+        "designHead": 16.0, "pltaCapacityMW": 0.0, "turbinMaxDischarge": 4.0,
+        "spillwayWidth": 18.0, "pgaDesign": 0.20,
+        "faultName": "Zona Stabil Madura (indikatif)",
+        "inundationRiverName": "Sungai Klampis Hilir (Sampang)",
+        "structures": [
+            { name: "Badan Bendungan Klampis", type: "dam_body", coords: [-7.055, 113.390], desc: "Urugan tinggi 16,5 m, waduk irigasi 5,6 juta m3." },
+            { name: "Spillway 2 Gerbang", type: "spillway", coords: [-7.057, 113.392], desc: "Spillway 2 gerbang radial." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Klampis", type: "tma", coords: [-7.054, 113.391] },
+            { name: "Pos Hujan Klampis", type: "rain", coords: [-7.050, 113.396] }
+        ],
+        "instruments": [
+            { name: "Titik Observasi Muka Air", type: "survey", coords: [-7.055, 113.390] }
+        ],
+        "catchmentPolygon": [[[-7.00, 113.35],[-7.00, 113.43],[-7.11, 113.43],[-7.11, 113.35]]],
+        "inundationPolygon": [[[-7.055, 113.390],[-7.070, 113.383],[-7.088, 113.375],[-7.092, 113.371],[-7.055, 113.390]]],
+        "flowPath": [[-7.057, 113.392],[-7.08, 113.38],[-7.10, 113.37],[-7.12, 113.36]]
+},
+sengguruh: {
+        "id": "sengguruh",
+        "name": "Bendung Sengguruh (PLTA 28.9 MW)",
+        "shortName": "Sengguruh",
+        "type": "Rockfill Weir (Bendung Panggelar)",
+        "province": "Jawa Timur",
+        "district": "Kota Malang (Kotalama)",
+        "locationStr": "Kec. Kotalama, Kota Malang, Jawa Timur",
+        "river": "Sungai Brantas",
+        "timezone": "WIB",
+        "coords": [-7.940, 112.655], "zoom": 12,
+        "normalElev": 292.5, "floodElev": 294.5, "lowElev": 291.0,
+        "normalVolume": 6.0, "floodVolume": 9.0, "deadVolume": 2.0,
+        "inflowAvg": 42.0, "inflowMax": 540.0,
+        "designHead": 22.5, "pltaCapacityMW": 28.9, "turbinMaxDischarge": 140.0,
+        "spillwayWidth": 60.0, "pgaDesign": 0.30,
+        "faultName": "Sesar Brantas Selatan (indikatif)",
+        "inundationRiverName": "Sungai Brantas Hilir (Malang - Kepanjen)",
+        "structures": [
+            { name: "Bendung Sengguruh", type: "dam_body", coords: [-7.940, 112.655], desc: "Bendung panggelar batu + pintu radim, PLTA 2x14,45 MW terpasang 28,9 MW." },
+            { name: "Intake & Spillway Radial", type: "spillway", coords: [-7.942, 112.658], desc: "5 pintu radial, kapasitas limpas ~1200 m3/s." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Sengguruh", type: "tma", coords: [-7.939, 112.656] },
+            { name: "Pos Hujan Malang", type: "rain", coords: [-7.966, 112.630] }
+        ],
+        "instruments": [
+            { name: "Monitor Pintu & Getaran Turbin", type: "piezo", coords: [-7.940, 112.655] }
+        ],
+        "catchmentPolygon": [[[-7.60, 112.35],[-7.60, 112.68],[-8.00, 112.68],[-8.00, 112.35]]],
+        "inundationPolygon": [[[-7.940, 112.655],[-7.955, 112.645],[-7.975, 112.635],[-7.982, 112.630],[-7.940, 112.655]]],
+        "flowPath": [[-7.942, 112.658],[-7.97, 112.64],[-8.02, 112.60],[-8.09, 112.52]]
+},
+lahor: {
+        "id": "lahor",
+        "name": "Bendungan Lahor (PLTA 0.9 MW)",
+        "shortName": "Lahor",
+        "type": "Zonal Earthfill (Tipe Urugan Zonal)",
+        "province": "Jawa Timur",
+        "district": "Kabupaten Malang (Sumbermanjing)",
+        "locationStr": "Kec. Sumbermanjing Wetan, Kab. Malang, Jawa Timur",
+        "river": "Sungai Lahor ( anak Brantas )",
+        "timezone": "WIB",
+        "coords": [-8.098, 112.703], "zoom": 12,
+        "normalElev": 287.0, "floodElev": 289.5, "lowElev": 276.0,
+        "normalVolume": 35.0, "floodVolume": 43.0, "deadVolume": 9.0,
+        "inflowAvg": 16.0, "inflowMax": 210.0,
+        "designHead": 40.0, "pltaCapacityMW": 0.9, "turbinMaxDischarge": 3.0,
+        "spillwayWidth": 34.0, "pgaDesign": 0.30,
+        "faultName": "Sesar Selat Madura Selatan (indikatif)",
+        "inundationRiverName": "Sungai Lahor / Brantas Hilir (Pagak)",
+        "structures": [
+            { name: "Badan Bendungan Lahor", type: "dam_body", coords: [-8.098, 112.703], desc: "Urugan zonal tinggi 65 m, waduk 35 juta m3, sumber air irigasi & mikrohidro." },
+            { name: "Spillway Tepi & Intake", type: "spillway", coords: [-8.100, 112.706], desc: "Spillway tepi + intake saluran tarik." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Lahor", type: "tma", coords: [-8.097, 112.704] },
+            { name: "Pos Hujan Sumbermanjing", type: "rain", coords: [-8.092, 112.710] }
+        ],
+        "instruments": [
+            { name: "Piezometer & Levelling", type: "piezo", coords: [-8.098, 112.703] }
+        ],
+        "catchmentPolygon": [[[-8.04, 112.66],[-8.04, 112.74],[-8.16, 112.74],[-8.16, 112.66]]],
+        "inundationPolygon": [[[-8.098, 112.703],[-8.115, 112.696],[-8.135, 112.688],[-8.140, 112.684],[-8.098, 112.703]]],
+        "flowPath": [[-8.100, 112.706],[-8.13, 112.69],[-8.17, 112.67],[-8.22, 112.64]]
+},
+tilong: {
+        "id": "tilong",
+        "name": "Bendungan Tilong",
+        "shortName": "Tilong",
+        "type": "Earthfill (Urugan)",
+        "province": "Nusa Tenggara Timur",
+        "district": "Kabupaten Kupang (Fatuleu)",
+        "locationStr": "Kec. Fatuleu, Kab. Kupang, NTT",
+        "river": "Sungai Noel Tilong",
+        "timezone": "WITA",
+        "coords": [-9.902, 123.657], "zoom": 12,
+        "normalElev": 105.0, "floodElev": 107.5, "lowElev": 96.0,
+        "normalVolume": 14.7, "floodVolume": 18.0, "deadVolume": 3.5,
+        "inflowAvg": 3.0, "inflowMax": 55.0,
+        "designHead": 25.0, "pltaCapacityMW": 0.0, "turbinMaxDischarge": 5.0,
+        "spillwayWidth": 24.0, "pgaDesign": 0.20,
+        "faultName": "Zona Timur NTT (indikatif)",
+        "inundationRiverName": "Sungai Noel Tilong Hilir (Kupang)",
+        "structures": [
+            { name: "Badan Bendungan Tilong", type: "dam_body", coords: [-9.902, 123.657], desc: "Urugan tinggi 56 m, waduk 14,7 juta m3 utk irigasi ~3.500 ha." },
+            { name: "Spillway 2 Gerbang", type: "spillway", coords: [-9.904, 123.660], desc: "Spillway 2 gerbang radial." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Tilong", type: "tma", coords: [-9.901, 123.658] },
+            { name: "Pos Hujan Fatuleu", type: "rain", coords: [-9.896, 123.664] }
+        ],
+        "instruments": [
+            { name: "Titik Observasi Muka Air", type: "survey", coords: [-9.902, 123.657] }
+        ],
+        "catchmentPolygon": [[[-9.85, 123.61],[-9.85, 123.70],[-9.96, 123.70],[-9.96, 123.61]]],
+        "inundationPolygon": [[[-9.902, 123.657],[-9.918, 123.650],[-9.938, 123.642],[-9.943, 123.638],[-9.902, 123.657]]],
+        "flowPath": [[-9.904, 123.660],[-9.93, 123.64],[-9.96, 123.62],[-9.99, 123.60]]
+},
+pondok: {
+        "id": "pondok",
+        "name": "Bendungan Pondok",
+        "shortName": "Pondok",
+        "type": "Earthfill (Urugan)",
+        "province": "Jawa Timur",
+        "district": "Kabupaten Pamekasan (Madura)",
+        "locationStr": "Kec. Pamekasan, Kab. Pamekasan, Madura",
+        "river": "Sungai Baru / Ketembe",
+        "timezone": "WIB",
+        "coords": [-7.110, 113.510], "zoom": 12,
+        "normalElev": 63.5, "floodElev": 65.5, "lowElev": 55.0,
+        "normalVolume": 21.2, "floodVolume": 25.5, "deadVolume": 4.5,
+        "inflowAvg": 4.5, "inflowMax": 70.0,
+        "designHead": 20.0, "pltaCapacityMW": 0.0, "turbinMaxDischarge": 5.0,
+        "spillwayWidth": 22.0, "pgaDesign": 0.20,
+        "faultName": "Zona Stabil Madura (indikatif)",
+        "inundationRiverName": "Sungai Ketembe Hilir (Pamekasan)",
+        "structures": [
+            { name: "Badan Bendungan Pondok", type: "dam_body", coords: [-7.110, 113.510], desc: "Urugan tinggi 39 m, waduk 21,2 juta m3 utk irigasi Madura." },
+            { name: "Spillway 2 Gerbang", type: "spillway", coords: [-7.112, 113.513], desc: "Spillway 2 gerbang radial." }
+        ],
+        "telemetry": [
+            { name: "Pos Ukur TMA Pondok", type: "tma", coords: [-7.109, 113.511] },
+            { name: "Pos Hujan Pamekasan", type: "rain", coords: [-7.104, 113.517] }
+        ],
+        "instruments": [
+            { name: "Titik Observasi Muka Air", type: "survey", coords: [-7.110, 113.510] }
+        ],
+        "catchmentPolygon": [[[-7.05, 113.46],[-7.05, 113.56],[-7.17, 113.56],[-7.17, 113.46]]],
+        "inundationPolygon": [[[-7.110, 113.510],[-7.126, 113.503],[-7.146, 113.495],[-7.151, 113.491],[-7.110, 113.510]]],
+        "flowPath": [[-7.112, 113.513],[-7.14, 113.49],[-7.17, 113.47],[-7.20, 113.45]]
+}
+};
+
 const DAM_DATA = {
     
     saguling: {
@@ -4005,10 +4303,7 @@ const DAM_DATA = {
         "district": "Wonosobo / Kebumen",
         "river": "Kali Bedegolan (SWS Serayu-Bogowonto)",
         "locationStr": "Desa Sumber Rejo, Kec. Wadaslintang, Kab. Wonosobo",
-        "coords": [
-                -7.5739,
-                109.7892
-        ],
+        "coords": [-7.608060, 109.781110],
         "zoom": 13,
         "timezone": "WIB",
         "normalElev": 185.0,
@@ -4030,65 +4325,44 @@ const DAM_DATA = {
                 {
                         "name": "Tubuh Bendungan Wadaslintang",
                         "type": "dam_body",
-                        "coords": [
-                                -7.5739,
-                                109.7892
-                        ],
+                        "coords": [-7.608060, 109.781110],
                         "desc": "Urugan batu inti lempung tegak tinggi 122 m, puncak 650 m."
                 },
                 {
                         "name": "Powerhouse PLTA Wadaslintang (16 MW)",
                         "type": "powerhouse",
-                        "coords": [
-                                -7.576,
-                                109.7915
-                        ],
+                        "coords": [-7.610160, 109.783410],
                         "desc": "Sentral 2 x 8 MW turbin Francis penopang sistem distribusi Jateng."
                 },
                 {
                         "name": "Spillway Bebas Ogee",
                         "type": "intake",
-                        "coords": [
-                                -7.572,
-                                109.7875
-                        ],
+                        "coords": [-7.606160, 109.779410],
                         "desc": "Pelimpah ogee tanpa pintu kapasitas 1.570 m\u00b3/s."
                 },
                 {
                         "name": "Waduk Wadaslintang (Genangan 14.6 km\u00b2)",
                         "type": "lake",
-                        "coords": [
-                                -7.55,
-                                109.8
-                        ],
+                        "coords": [-7.584160, 109.791910],
                         "desc": "Menyuplai irigasi 31.634 ha persawahan Kedu Selatan."
                 }
         ],
         "telemetry": [
                 {
                         "name": "AWLR Waduk Wadaslintang",
-                        "coords": [
-                                -7.573,
-                                109.7885
-                        ],
+                        "coords": [-7.607160, 109.780410],
                         "type": "AWLR",
                         "val": "185.15 m"
                 },
                 {
                         "name": "ARR Pos Hujan Wadaslintang",
-                        "coords": [
-                                -7.56,
-                                109.81
-                        ],
+                        "coords": [-7.594160, 109.801910],
                         "type": "ARR",
                         "val": "22.0 mm/hari"
                 },
                 {
                         "name": "Akselerograf Wadaslintang",
-                        "coords": [
-                                -7.5745,
-                                109.79
-                        ],
+                        "coords": [-7.608660, 109.781910],
                         "type": "SEISMO",
                         "val": "PGA 0.031g"
                 }
@@ -4096,92 +4370,38 @@ const DAM_DATA = {
         "instruments": [
                 {
                         "name": "Piezometer Inti Wadaslintang PZ-1",
-                        "coords": [
-                                -7.574,
-                                109.7895
-                        ],
+                        "coords": [-7.608160, 109.781410],
                         "type": "PZ",
                         "val": "u = 46 kPa (Aman)"
                 },
                 {
                         "name": "V-Notch Seepage Wadaslintang VN-1",
-                        "coords": [
-                                -7.575,
-                                109.7908
-                        ],
+                        "coords": [-7.609160, 109.782710],
                         "type": "SEEP",
                         "val": "Q_seep = 4.8 L/menit"
                 }
         ],
         "flowPath": [
-                [
-                        -7.51,
-                        109.82
-                ],
-                [
-                        -7.54,
-                        109.8
-                ],
-                [
-                        -7.5739,
-                        109.7892
-                ],
-                [
-                        -7.61,
-                        109.78
-                ],
-                [
-                        -7.67,
-                        109.77
-                ]
+                [-7.544160, 109.811910],
+                [-7.574160, 109.791910],
+                [-7.608060, 109.781110],
+                [-7.644160, 109.771910],
+                [-7.704160, 109.761910]
         ],
         "catchmentPolygon": [
-                [
-                        -7.48,
-                        109.72
-                ],
-                [
-                        -7.5,
-                        109.86
-                ],
-                [
-                        -7.63,
-                        109.84
-                ],
-                [
-                        -7.62,
-                        109.72
-                ],
-                [
-                        -7.48,
-                        109.72
-                ]
+                [-7.514160, 109.711910],
+                [-7.534160, 109.851910],
+                [-7.664160, 109.831910],
+                [-7.654160, 109.711910],
+                [-7.514160, 109.711910]
         ],
         "inundationPolygon": [
-                [
-                        -7.5739,
-                        109.7892
-                ],
-                [
-                        -7.6,
-                        109.785
-                ],
-                [
-                        -7.64,
-                        109.78
-                ],
-                [
-                        -7.68,
-                        109.77
-                ],
-                [
-                        -7.62,
-                        109.76
-                ],
-                [
-                        -7.5739,
-                        109.7892
-                ]
+                [-7.608060, 109.781110],
+                [-7.634160, 109.776910],
+                [-7.674160, 109.771910],
+                [-7.714160, 109.761910],
+                [-7.654160, 109.751910],
+                [-7.608060, 109.781110]
         ]
 },
 
@@ -5500,10 +5720,7 @@ const DAM_DATA = {
         "district": "Kabupaten Sumbawa",
         "river": "Sungai Mamak (SWS 03.03 Sumbawa)",
         "locationStr": "Desa Tabuse, Kec. Lape Lopok, Kab. Sumbawa",
-        "coords": [
-                -8.6253,
-                117.6533
-        ],
+        "coords": [-8.691400, 117.577000],
         "zoom": 13,
         "timezone": "WITA",
         "normalElev": 93.2,
@@ -5525,65 +5742,44 @@ const DAM_DATA = {
                 {
                         "name": "Tubuh Bendungan Mamak",
                         "type": "dam_body",
-                        "coords": [
-                                -8.6253,
-                                117.6533
-                        ],
+                        "coords": [-8.691400, 117.577000],
                         "desc": "Urugan batu inti lempung tinggi 41.5 m, puncak 550 m."
                 },
                 {
                         "name": "Powerhouse PLTMH Mamak (550 KW)",
                         "type": "powerhouse",
-                        "coords": [
-                                -8.627,
-                                117.655
-                        ],
+                        "coords": [-8.693100, 117.578700],
                         "desc": "Sentral mikrohidro 550 kW terintegrasi pelepasan irigasi."
                 },
                 {
                         "name": "Spillway Ogee Bebas Mamak",
                         "type": "intake",
-                        "coords": [
-                                -8.624,
-                                117.6515
-                        ],
+                        "coords": [-8.690100, 117.575200],
                         "desc": "Pelimpah ogee bebas kapasitas 1.095 m\u00b3/s."
                 },
                 {
                         "name": "Waduk Mamak (Irigasi 5.428 ha)",
                         "type": "lake",
-                        "coords": [
-                                -8.618,
-                                117.645
-                        ],
+                        "coords": [-8.684100, 117.568700],
                         "desc": "Tampungan efektif 27.7 Juta m\u00b3 lumbung pangan Sumbawa."
                 }
         ],
         "telemetry": [
                 {
                         "name": "AWLR Waduk Mamak",
-                        "coords": [
-                                -8.6245,
-                                117.6525
-                        ],
+                        "coords": [-8.690600, 117.576200],
                         "type": "AWLR",
                         "val": "93.25 m"
                 },
                 {
                         "name": "ARR Pos Hujan Lape",
-                        "coords": [
-                                -8.61,
-                                117.66
-                        ],
+                        "coords": [-8.676100, 117.583700],
                         "type": "ARR",
                         "val": "12.0 mm/hari"
                 },
                 {
                         "name": "Akselerograf Sumbawa",
-                        "coords": [
-                                -8.626,
-                                117.654
-                        ],
+                        "coords": [-8.692100, 117.577700],
                         "type": "SEISMO",
                         "val": "PGA 0.036g"
                 }
@@ -5591,92 +5787,38 @@ const DAM_DATA = {
         "instruments": [
                 {
                         "name": "Piezometer Mamak PZ-1",
-                        "coords": [
-                                -8.6255,
-                                117.6535
-                        ],
+                        "coords": [-8.691600, 117.577200],
                         "type": "PZ",
                         "val": "u = 29 kPa (Aman)"
                 },
                 {
                         "name": "V-Notch Seepage Mamak VN-1",
-                        "coords": [
-                                -8.6265,
-                                117.6545
-                        ],
+                        "coords": [-8.692600, 117.578200],
                         "type": "SEEP",
                         "val": "Q_seep = 2.2 L/menit"
                 }
         ],
         "flowPath": [
-                [
-                        -8.58,
-                        117.62
-                ],
-                [
-                        -8.6,
-                        117.635
-                ],
-                [
-                        -8.6253,
-                        117.6533
-                ],
-                [
-                        -8.65,
-                        117.67
-                ],
-                [
-                        -8.7,
-                        117.7
-                ]
+                [-8.646100, 117.543700],
+                [-8.666100, 117.558700],
+                [-8.691400, 117.577000],
+                [-8.716100, 117.593700],
+                [-8.766100, 117.623700]
         ],
         "catchmentPolygon": [
-                [
-                        -8.55,
-                        117.6
-                ],
-                [
-                        -8.55,
-                        117.72
-                ],
-                [
-                        -8.7,
-                        117.72
-                ],
-                [
-                        -8.7,
-                        117.6
-                ],
-                [
-                        -8.55,
-                        117.6
-                ]
+                [-8.616100, 117.523700],
+                [-8.616100, 117.643700],
+                [-8.766100, 117.643700],
+                [-8.766100, 117.523700],
+                [-8.616100, 117.523700]
         ],
         "inundationPolygon": [
-                [
-                        -8.6253,
-                        117.6533
-                ],
-                [
-                        -8.64,
-                        117.665
-                ],
-                [
-                        -8.67,
-                        117.685
-                ],
-                [
-                        -8.71,
-                        117.71
-                ],
-                [
-                        -8.66,
-                        117.67
-                ],
-                [
-                        -8.6253,
-                        117.6533
-                ]
+                [-8.691400, 117.577000],
+                [-8.706100, 117.588700],
+                [-8.736100, 117.608700],
+                [-8.776100, 117.633700],
+                [-8.726100, 117.593700],
+                [-8.691400, 117.577000]
         ]
 },
 
@@ -8289,7 +8431,7 @@ poso: {
         district: "Kab. Buru",
         river: "Sungai Way Apu / Wae Apu",
         locationStr: "Kec. Waeapo, Kab. Buru (Maluku)",
-        coords: [-3.540, 127.220],
+        coords: [-3.377743, 126.769926],
         zoom: 12,
         timezone: "WITA",
         normalElev: 60.0,
@@ -8308,29 +8450,29 @@ poso: {
         faultName: "Zona Sesar Buru-Seram (Waehuhu-Kairatu)",
         inundationRiverName: "Sungai Way Apu Hilir (Lembah Waeapo)",
         structures: [
-            { name: "Tubuh Bendungan Way Apu (Zoned Rockfill H=69 m)", type: "dam_body", coords: [-3.540, 127.220], desc: "Urugan batu bertingkat tinggi 69 m, panjang puncak 490 m, lebar puncak 12 m." },
-            { name: "Spillway Sidewek & Intake Irigasi 10.000 ha", type: "spillway", coords: [-3.544, 127.224], desc: "Pelimpah ogee + intake suplai D.I. Waeapo 10.000 ha dan air baku Namlea." },
-            { name: "PLTMH Way Apu (0,68 MW)", type: "powerhouse", coords: [-3.548, 127.228], desc: "Pembangkit listrik mikrohidro untuk ±8.750 rumah tangga Buru." },
-            { name: "AWLR Waeapo", coords: [-3.552, 127.215], type: "AWLR", val: "59,95 m" }
+            { name: "Tubuh Bendungan Way Apu (Zoned Rockfill H=69 m)", type: "dam_body", coords: [-3.377743, 126.769926], desc: "Urugan batu bertingkat tinggi 69 m, panjang puncak 490 m, lebar puncak 12 m." },
+            { name: "Spillway Sidewek & Intake Irigasi 10.000 ha", type: "spillway", coords: [-3.381743, 126.773926], desc: "Pelimpah ogee + intake suplai D.I. Waeapo 10.000 ha dan air baku Namlea." },
+            { name: "PLTMH Way Apu (0,68 MW)", type: "powerhouse", coords: [-3.385743, 126.777926], desc: "Pembangkit listrik mikrohidro untuk ±8.750 rumah tangga Buru." },
+            { name: "AWLR Waeapo", coords: [-3.389743, 126.764926], type: "AWLR", val: "59,95 m" }
         ],
                 telemetry: [
-            { name: "AWLR Waeapo (Hilir Bendungan)", coords: [-3.548, 127.212], type: "AWLR", val: "59,90 m" },
-            { name: "ARR Pos Hujan Waeapo", coords: [-3.520, 127.180], type: "ARR", val: "22,0 mm/hari" },
-            { name: "ARR Pos Hujan Namlea", coords: [-3.380, 127.080], type: "ARR", val: "14,0 mm/hari" },
-            { name: "Seismograf Buru (BMKG Namlea)", coords: [-3.380, 127.070], type: "SEISMO", val: "PGA 0,02g" }
+            { name: "AWLR Waeapo (Hilir Bendungan)", coords: [-3.385743, 126.761926], type: "AWLR", val: "59,90 m" },
+            { name: "ARR Pos Hujan Waeapo", coords: [-3.357743, 126.729926], type: "ARR", val: "22,0 mm/hari" },
+            { name: "ARR Pos Hujan Namlea", coords: [-3.217743, 126.629926], type: "ARR", val: "14,0 mm/hari" },
+            { name: "Seismograf Buru (BMKG Namlea)", coords: [-3.217743, 126.619926], type: "SEISMO", val: "PGA 0,02g" }
         ],
         instruments: [
-            { name: "Piezometer Fondasi P1-P6", coords: [-3.5402, 127.2203], type: "piezometer", val: "Stabil" },
-            { name: "V-Notch Rembesan Hilir", coords: [-3.5398, 127.2198], type: "vnotch", val: "Normal" },
-            { name: "Akselerograf SMA Way Apu", coords: [-3.5405, 127.2208], type: "smabox", val: "Stand-by" }
+            { name: "Piezometer Fondasi P1-P6", coords: [-3.377943, 126.770226], type: "piezometer", val: "Stabil" },
+            { name: "V-Notch Rembesan Hilir", coords: [-3.377543, 126.769726], type: "vnotch", val: "Normal" },
+            { name: "Akselerograf SMA Way Apu", coords: [-3.378243, 126.770726], type: "smabox", val: "Stand-by" }
         ],
-        flowPath: [[-3.540, 127.220], [-3.560, 127.250], [-3.600, 127.290], [-3.650, 127.320], [-3.700, 127.330], [-3.760, 127.300]],
-        catchmentPolygon: [     [-3.420, 127.120], [-3.380, 127.260], [-3.440, 127.360], [-3.560, 127.400],
-            [-3.660, 127.330], [-3.690, 127.210], [-3.600, 127.100], [-3.480, 127.080]
+        flowPath: [[-3.377743, 126.769926], [-3.397743, 126.799926], [-3.437743, 126.839926], [-3.487743, 126.869926], [-3.537743, 126.879926], [-3.597743, 126.849926]],
+        catchmentPolygon: [     [-3.257743, 126.669926], [-3.217743, 126.809926], [-3.277743, 126.909926], [-3.397743, 126.949926],
+            [-3.497743, 126.879926], [-3.527743, 126.759926], [-3.437743, 126.649926], [-3.317743, 126.629926]
         ],
         inundationPolygon: [
-            [-3.540, 127.224], [-3.570, 127.245], [-3.600, 127.270], [-3.575, 127.290],
-            [-3.545, 127.262], [-3.528, 127.240], [-3.540, 127.224]
+            [-3.377743, 126.773926], [-3.407743, 126.794926], [-3.437743, 126.819926], [-3.412743, 126.839926],
+            [-3.382743, 126.811926], [-3.365743, 126.789926], [-3.377743, 126.773926]
         ]
     },
     meninting: {
@@ -8341,7 +8483,7 @@ poso: {
         district: "Kab. Lombok Barat",
         river: "Sungai Meninting (Sub-DAS Jangkok)",
         locationStr: "Desa Bukit Tinggi, Kec. Gunungsari, Lombok Barat",
-        coords: [-8.690, 116.250],
+        coords: [-8.497264, 116.076139],
         zoom: 13,
         timezone: "WITA",
         normalElev: 104.0,
@@ -8360,29 +8502,29 @@ poso: {
         faultName: "Sesar Flores Back-Arc (Segmen Lombok) & Zona Vulkanik Rinjani",
         inundationRiverName: "Sungai Meninting Hilir (Kota Mataram)",
         structures: [
-            { name: "Tubuh Bendungan Meninting (Rockfill Kaolin H=39 m)", type: "dam_body", coords: [-8.690, 116.250], desc: "Urugan batu dengan inti kaolin khas Lombok, proyek PSN, resmi 2026." },
-            { name: "Spillway & Intake Irigasi 1.600 ha", type: "spillway", coords: [-8.694, 116.254], desc: "Suplai irigasi Lobar-Loteng ±1.600-2.000 ha + air baku Kota Mataram." },
-            { name: "Ruang Jalan Inspeksi & Wisata Waduk", type: "intake", coords: [-8.686, 116.246], desc: "Jalur inspeksi puncak sekaligus potensi ekowisata Sesaot." },
-            { name: "AWLR Meninting", coords: [-8.698, 116.258], type: "AWLR", val: "103,80 m" }
+            { name: "Tubuh Bendungan Meninting (Rockfill Kaolin H=39 m)", type: "dam_body", coords: [-8.497264, 116.076139], desc: "Urugan batu dengan inti kaolin khas Lombok, proyek PSN, resmi 2026." },
+            { name: "Spillway & Intake Irigasi 1.600 ha", type: "spillway", coords: [-8.501264, 116.080139], desc: "Suplai irigasi Lobar-Loteng ±1.600-2.000 ha + air baku Kota Mataram." },
+            { name: "Ruang Jalan Inspeksi & Wisata Waduk", type: "intake", coords: [-8.493264, 116.072139], desc: "Jalur inspeksi puncak sekaligus potensi ekowisata Sesaot." },
+            { name: "AWLR Meninting", coords: [-8.505264, 116.084139], type: "AWLR", val: "103,80 m" }
         ],
                 telemetry: [
-            { name: "AWLR Meninting (Outlet)", coords: [-8.694, 116.242], type: "AWLR", val: "103,85 m" },
-            { name: "ARR Pos Hujan Sesaot", coords: [-8.660, 116.290], type: "ARR", val: "28,5 mm/hari" },
-            { name: "ARR Pos Hujan Gunungsari", coords: [-8.660, 116.210], type: "ARR", val: "19,0 mm/hari" },
-            { name: "Seismograf BMKG Mataram", coords: [-8.580, 116.110], type: "SEISMO", val: "Mikrozonasi Aktif" }
+            { name: "AWLR Meninting (Outlet)", coords: [-8.501264, 116.068139], type: "AWLR", val: "103,85 m" },
+            { name: "ARR Pos Hujan Sesaot", coords: [-8.467264, 116.116139], type: "ARR", val: "28,5 mm/hari" },
+            { name: "ARR Pos Hujan Gunungsari", coords: [-8.467264, 116.036139], type: "ARR", val: "19,0 mm/hari" },
+            { name: "Seismograf BMKG Mataram", coords: [-8.387264, 115.936139], type: "SEISMO", val: "Mikrozonasi Aktif" }
         ],
         instruments: [
-            { name: "Piezometer Inti Kaolin P1-P4", coords: [-8.6902, 116.2503], type: "piezometer", val: "Stabil" },
-            { name: "Crackmeter Lereng Hulu", coords: [-8.6898, 116.2498], type: "crackmeter", val: "Normal" },
-            { name: "Akselerograf SMA Meninting", coords: [-8.6905, 116.2508], type: "smabox", val: "Stand-by" }
+            { name: "Piezometer Inti Kaolin P1-P4", coords: [-8.497464, 116.076439], type: "piezometer", val: "Stabil" },
+            { name: "Crackmeter Lereng Hulu", coords: [-8.497064, 116.075939], type: "crackmeter", val: "Normal" },
+            { name: "Akselerograf SMA Meninting", coords: [-8.497764, 116.076939], type: "smabox", val: "Stand-by" }
         ],
-        flowPath: [[-8.690, 116.250], [-8.720, 116.210], [-8.740, 116.170], [-8.700, 116.130], [-8.660, 116.100], [-8.620, 116.080]],
-        catchmentPolygon: [     [-8.600, 116.180], [-8.580, 116.260], [-8.620, 116.330], [-8.700, 116.360],
-            [-8.760, 116.320], [-8.780, 116.240], [-8.740, 116.170], [-8.660, 116.150]
+        flowPath: [[-8.497264, 116.076139], [-8.527264, 116.036139], [-8.547264, 115.996139], [-8.507264, 115.956139], [-8.467264, 115.926139], [-8.427264, 115.906139]],
+        catchmentPolygon: [     [-8.407264, 116.006139], [-8.387264, 116.086139], [-8.427264, 116.156139], [-8.507264, 116.186139],
+            [-8.567264, 116.146139], [-8.587264, 116.066139], [-8.547264, 115.996139], [-8.467264, 115.976139]
         ],
         inundationPolygon: [
-            [-8.694, 116.254], [-8.716, 116.238], [-8.738, 116.220], [-8.720, 116.206],
-            [-8.700, 116.224], [-8.688, 116.244], [-8.694, 116.254]
+            [-8.501264, 116.080139], [-8.523264, 116.064139], [-8.545264, 116.046139], [-8.527264, 116.032139],
+            [-8.507264, 116.050139], [-8.495264, 116.070139], [-8.501264, 116.080139]
         ]
     },
     bintangbano: {
@@ -8393,7 +8535,7 @@ poso: {
         district: "Kab. Sumbawa Barat",
         river: "Sungai Brang Rea (DAS Brang Rea)",
         locationStr: "Kec. Brang Rea, Kab. Sumbawa Barat (NTB)",
-        coords: [-8.620, 117.040],
+        coords: [-8.714868, 116.987806],
         zoom: 12,
         timezone: "WITA",
         normalElev: 98.0,
@@ -8412,29 +8554,29 @@ poso: {
         faultName: "Sesar Flores Back-Arc (Selat Sumbawa-Brang Rea)",
         inundationRiverName: "Sungai Brang Rea Hilir (Taliwang)",
         structures: [
-            { name: "Tubuh Bendungan Bintang Bano (Zoned Rockfill H=72 m)", type: "dam_body", coords: [-8.620, 117.040], desc: "Bendungan terbesar di NTB — tampungan 65,84 juta m³, luas genangan 277,52 ha, reduksi banjir 53%." },
-            { name: "Spillway & Intake D.I. Bintang Bano 6.695 ha", type: "spillway", coords: [-8.626, 117.044], desc: "Suplai D.I. Kalimantong 2.493 ha, Rempek 2.446 ha, Senteluk 1.765 ha." },
-            { name: "PLTM Bintang Bano (6,3 MW - KPBU)", type: "powerhouse", coords: [-8.630, 117.048], desc: "Pembangkit listrik mikro skema KPBU KemenPU." },
-            { name: "AWLR Brang Rea", coords: [-8.634, 117.036], type: "AWLR", val: "97,60 m" }
+            { name: "Tubuh Bendungan Bintang Bano (Zoned Rockfill H=72 m)", type: "dam_body", coords: [-8.714868, 116.987806], desc: "Bendungan terbesar di NTB — tampungan 65,84 juta m³, luas genangan 277,52 ha, reduksi banjir 53%." },
+            { name: "Spillway & Intake D.I. Bintang Bano 6.695 ha", type: "spillway", coords: [-8.720868, 116.991806], desc: "Suplai D.I. Kalimantong 2.493 ha, Rempek 2.446 ha, Senteluk 1.765 ha." },
+            { name: "PLTM Bintang Bano (6,3 MW - KPBU)", type: "powerhouse", coords: [-8.724868, 116.995806], desc: "Pembangkit listrik mikro skema KPBU KemenPU." },
+            { name: "AWLR Brang Rea", coords: [-8.728868, 116.983806], type: "AWLR", val: "97,60 m" }
         ],
                 telemetry: [
-            { name: "AWLR Brang Rea (Outlet)", coords: [-8.626, 117.036], type: "AWLR", val: "97,55 m" },
-            { name: "ARR Pos Hujan Brang Rea", coords: [-8.560, 117.060], type: "ARR", val: "24,0 mm/hari" },
-            { name: "AWLR Taliwang (Hilir)", coords: [-8.700, 117.010], type: "AWLR", val: "12,4 m³/s" },
-            { name: "Seismograf BMKG Sumbawa", coords: [-8.500, 117.150], type: "SEISMO", val: "PGA 0,01g" }
+            { name: "AWLR Brang Rea (Outlet)", coords: [-8.720868, 116.983806], type: "AWLR", val: "97,55 m" },
+            { name: "ARR Pos Hujan Brang Rea", coords: [-8.654868, 117.007806], type: "ARR", val: "24,0 mm/hari" },
+            { name: "AWLR Taliwang (Hilir)", coords: [-8.794868, 116.957806], type: "AWLR", val: "12,4 m³/s" },
+            { name: "Seismograf BMKG Sumbawa", coords: [-8.594868, 117.097806], type: "SEISMO", val: "PGA 0,01g" }
         ],
         instruments: [
-            { name: "Piezometer Fondasi P1-P8", coords: [-8.6202, 117.0403], type: "piezometer", val: "Stabil" },
-            { name: "Settlement Monument Puncak", coords: [-8.6198, 117.0398], type: "settlement", val: "Normal" },
-            { name: "Akselerograf SMA Bintang Bano", coords: [-8.6205, 117.0408], type: "smabox", val: "Stand-by" }
+            { name: "Piezometer Fondasi P1-P8", coords: [-8.715068, 116.988106], type: "piezometer", val: "Stabil" },
+            { name: "Settlement Monument Puncak", coords: [-8.714668, 116.987606], type: "settlement", val: "Normal" },
+            { name: "Akselerograf SMA Bintang Bano", coords: [-8.715368, 116.988606], type: "smabox", val: "Stand-by" }
         ],
-        flowPath: [[-8.620, 117.040], [-8.656, 117.030], [-8.690, 117.000], [-8.720, 116.960], [-8.750, 116.920], [-8.780, 116.890]],
-        catchmentPolygon: [     [-8.510, 116.940], [-8.490, 117.060], [-8.540, 117.180], [-8.640, 117.250],
-            [-8.740, 117.210], [-8.770, 117.090], [-8.700, 116.960], [-8.600, 116.920]
+        flowPath: [[-8.714868, 116.987806], [-8.750868, 116.977806], [-8.784868, 116.947806], [-8.814868, 116.907806], [-8.844868, 116.867806], [-8.874868, 116.837806]],
+        catchmentPolygon: [     [-8.604868, 116.887806], [-8.584868, 117.007806], [-8.634868, 117.127806], [-8.734868, 117.197806],
+            [-8.834868, 117.157806], [-8.864868, 117.037806], [-8.794868, 116.907806], [-8.694868, 116.867806]
         ],
         inundationPolygon: [
-            [-8.626, 117.046], [-8.656, 117.030], [-8.686, 117.010], [-8.664, 116.992],
-            [-8.640, 117.012], [-8.622, 117.032], [-8.626, 117.046]
+            [-8.720868, 116.993806], [-8.750868, 116.977806], [-8.780868, 116.957806], [-8.758868, 116.939806],
+            [-8.734868, 116.959806], [-8.716868, 116.979806], [-8.720868, 116.993806]
         ]
     },
     tiusuntuk: {
@@ -8489,7 +8631,9 @@ poso: {
             [-8.760, 117.152], [-8.742, 117.170], [-8.754, 117.184]
         ]
     }
-};
+}
+Object.assign(DAM_DATA, DAM_DATA_BARU);
+;
 let currentDamKey = 'wonorejo';
 let currentDam = DAM_DATA[currentDamKey];
 let currentTheme = 'dark';
@@ -8512,6 +8656,39 @@ let flowAnimTimer = null;
 let simSpeed = 1.0;
 
 // MAP TILE PROVIDERS
+const PUPR_DAMS = [["Bendungan Marangkayu",-0.050863,117.266709,""],["Bendungan Kuningan",-6.971393,108.557921,""],["Bendungan Bendo",-7.202431,111.880661,""],["Bendungan Gongseng",-7.475604,112.164764,""],["Bendungan Tukul",-8.058131,111.154532,""],["Bendungan Gondang",-7.412845,111.108851,"Jawa Tengah"],["Bendungan Pidekso",-8.038326,111.00157,"Jawa Tengah"],["Bendungan Tugu",-8.027957,111.652677,"Jawa Timur"],["Bendungan Teritip",-1.151916,116.981994,"Kalimantan Timur"],["Bendungan Karalloe",-4.888349,119.93299,"Sulawesi Selatan"],["Bendungan Keureuto",4.939324,97.158465,"Aceh"],["Bendungan Muara Sei Gong",1.040521,104.095039,"Kepulauan Riau"],["Bendungan Tapin",-2.940473,115.336016,"Kalimantan Selatan"],["Bendungan Passeloreng",-3.882694,120.182893,"Sulawesi Selatan"],["Bendungan Lolak",0.802949,124.071639,"Sulawesi Utara"],["Bendungan Raknamo",-10.129708,123.698435,"Nusa Tenggara Timur"],["Bendungan Rotiklod",-9.067071,124.836442,"Nusa Tenggara Timur"],["Bendungan Bintang Bano",-8.714868,116.987806,"Nusa Tenggara Barat"],["Bendungan Mila",-8.472007,118.34909,"Nusa Tenggara Barat"],["Bendungan Tanju",-8.473196,118.347711,"Nusa Tenggara Barat"],["Bendungan Sindang Heula",-6.181894,106.112838,"Banten"],["Bendungan Logung",-6.75747,110.921668,"Jawa Tengah"],["Bendungan Karian",-6.412528,106.281866,"Banten"],["Bendungan Rukoh",5.124619,95.95039,"Aceh"],["Bendungan Way Sekampung",-5.333661,104.917746,"Lampung"],["Bendungan Kuwil Kawangkoan",1.426206,124.921331,"Sulawesi Utara"],["Bendungan Ladongi",-4.130713,121.924145,"Sulawesi Tenggara"],["Bendungan Ciawi",-6.644991,106.855909,"Jawa Barat"],["Bendungan Sukamahi",-6.373379,107.178261,"Jawa Barat"],["Bendungan Leuwikeris",-7.354254,108.399543,"Jawa Barat"],["Bendungan Cipanas",-6.672338,108.026592,"Jawa Barat"],["Bendungan Komering II",-3.299086,104.866489,"Sumatera Selatan"],["Bendungan Semantok",-7.494463,111.890269,"Jawa Timur"],["Bendungan Pamukkulu",-5.400585,119.555091,"Sulawesi Selatan"],["Bendungan Bener",-7.44419,109.610665,"Jawa Tengah"],["Bendungan Sadawarna",-6.57721,107.841223,"Jawa Barat"],["Bendungan Tiro",5.211888,95.949229,"Aceh"],["Bendungan Lausimeme",3.366325,98.651787,"Sumatera Utara"],["Bendungan Kolhua",-10.197854,123.892648,"Nusa Tenggara Timur"],["Bendungan Sidan",-8.243657,114.943122,"Bali"],["Bendungan Jenelata",-4.450145,119.971068,"Sulawesi Selatan"],["Bendungan Matenggeng",-7.57072,108.905826,"Jawa Barat"],["Bendungan Marga III",-4.531468,105.0237,"Lampung"],["Bendungan Bagong",-8.040153,111.706145,"Jawa Timur"],["Bendungan Randugunting",-7.213077,110.429122,"Jawa Tengah"],["Bendungan Rokan Kiri",-5.008512,104.73301,"Lampung"],["Bendungan Mbay",-8.675264,121.30849,"Nusa Tenggara Timur"],["Bendungan Bolangohulu",0.71654,123.05595,"Gorontalo"],["Bendungan Napungete",-8.735985,122.21691,"Nusa Tenggara Timur"],["Bendungan Temef",-9.719295,124.443926,"Nusa Tenggara Timur"],["Bendungan Way Apu",-3.377743,126.769926,"Maluku"],["Bendungan Meninting",-8.497264,116.076139,"Nusa Tenggara Barat"],["Bendungan Sepaku Semoi",-0.908878,116.840442,""],["Bendungan WANGGAR",-3.477111,135.465103,""],["Pembangunan Bendung dan Jaringan Irigasi DI. Baliase",-2.253466,119.952017,""],["Pembangunan Bendung dan Jaringan Irigasi DI. Gumbasa",-1.225204,119.950883,""],["Bendungan Wadaslintang",-7.60806,109.78111,""],["Bendungan Toraut",0.5682,123.9089,""],["Bendungan Tegallinggah",-8.4436,115.1163,""],["Bendungan Srinjing",-7.8648,112.2623,""],["Bendungan Soka",-8.4868,115.0255,""],["Bendungan Siman",-7.8643,112.3213,""],["Bendungan Sempor",-7.56667,109.48556,""],["Bendungan Selorejo",-7.8718,112.3554,""],["Bendungan Saguling",-6.9125,107.36639,""],["Bendungan Pesayangan",-6.9201,109.1384,""],["Bendungan Pengga",-8.756,116.1893,""],["Bendungan Palasari",-8.2531,114.5492,""],["Bendungan Nglambangan",-7.2966,111.7268,""],["Bendungan Meliling",-8.4737,115.1056,""],["Bendungan Mautenda Empat",-8.57562,121.73895,""],["Bendungan Mautenda Dua",-8.6432,121.6955,""],["Bendungan Mamak",-8.6914,117.577,""],["Bendungan Leuwinangka",-6.56444,107.72972,""],["Bendungan Lekopancing",-5.1279,119.6375,""],["Bendungan Laor",-8.1467,112.4513,""],["Bendungan Lahikaninu",-9.68097,119.46683,""],["Bendungan Krangkengan",-8.2221,113.3897,""],["Bendungan Kosinggolan",0.5219,123.9439,""],["Bendungan Karisman",-6.46083,107.77889,""],["Bendungan Karetcibanten",-6.0425,106.1619,""],["Bendungan Karangkates",-8.1604,112.4467,""],["Bendungan Ir. H. Juanda",-6.52361,107.38917,""],["Bendungan Gerak Serayu",-7.52389,109.2025,""],["Bendungan Gadungan",-8.4784,115.0935,""],["Bendungan Deturia",-8.7099,121.74,""],["Bendungan Damarwulan",-7.7597,112.2784,""],["Bendungan Cisarua",-6.87139,106.90472,""],["Bendungan Cirata",-6.70056,107.36722,""],["Bendungan Cipero",-6.9883,109.3079,""],["Bendungan Cijoro",-6.37806,106.25861,""],["Bendungan Ciawitemen",-6.47861,107.26444,""],["Bendungan Buko",0.8697,123.1668,""],["Bendungan Bolangaso",0.406,123.9773,""],["Bendungan Barugbug",-6.39889,107.52861,""],["Bendungan Zaa",-8.8776,121.1124,""],["Bendungan Wlingi",-8.1414,112.248,""],["Bendungan Wilalung",-6.9265,110.7853,""],["Bendungan Watulintang",-6.8627,108.5772,""],["Bendungan Watubarut",-7.57333,109.52722,""],["Bendungan Waetaiang",-8.5123,120.2697,""],["Bendungan Waerentang",-8.5608,120.334,""],["Bendungan Waeracang",-8.5114,120.2723,""],["Bendungan Waemese",-8.5605,119.9398,""],["Bendungan Waekor",-8.5481,120.2635,""],["Bendungan Waeka",-8.5522,120.2681,""],["Bendungan Waeces",-8.5994,120.4699,""],["Bendungan Usar",-8.8089,117.8176,""],["Bendungan Tiuwui",-8.8047,117.9632,""],["Bendungan Tiukulit",-8.688,117.6785,""],["Bendungan Terusa",-8.4898,117.0423,""],["Bendungan Tarusan",-8.4427,117.1682,""],["Bendungan Solopalai",-7.18151,111.80964,""],["Bendungan Sionjur",-7.0437,113.0492,""],["Bendungan Singamerta",-7.39028,109.74528,""],["Bendungan Serut",-8.1501,112.1906,""],["Bendungan Sepakat",-8.8039,117.7768,""],["Bendungan Sedong",-6.8778,108.583,""],["Bendungan Sawangan",-7.63472,109.965,""],["Bendungan Sarisakolo",-8.5131,118.4587,""],["Bendungan Saradan",-7.5523,111.7485,""],["Bendungan Sampean",-7.8261,113.9375,""],["Bendungan Samawung",-7.73722,109.90611,""],["Bendungan Salamdarma",-6.42,107.89417,""],["Bendungan Sahe",-8.7897,117.9857,""],["Bendungan Rentang",-6.66306,108.22556,""],["Bendungan Rejo",-7.6693,111.876,""],["Bendungan Rebug",-7.66361,109.92722,""],["Bendungan Rahalayu",-8.5231,118.4875,""],["Bendungan Rababoda",-8.478,118.7599,""],["Bendungan Pungkit",-8.654,117.5295,""],["Bendungan Pungka",-8.5238,117.4195,""],["Bendungan Plampang",-8.7978,117.782,""],["Bendungan Pilang",-7.1036,110.2801,""],["Bendungan Penyaung",-8.6566,117.4285,""],["Bendungan Pekatingan",-7.71556,109.85778,""],["Bendungan Pejengkolan",-7.65917,109.77139,""],["Bendungan Parangjoho",-7.95167,110.81611,""],["Bendungan Pamarayan Lama",-6.2596,106.2853,""],["Bendungan Pamarayan Baru",-6.2594,106.281,""],["Bendungan Palayangan",-6.4096,106.232,""],["Bendungan Pacal",-7.3625,111.8708,""],["Bendungan Notopuro",-7.4845,111.6926,""],["Bendungan Ngeseng",-7.996,112.3112,""],["Bendungan Nanjiladang",-7.0403,109.3619,""],["Bendungan Nangagete",-8.4808,122.584,""],["Bendungan Nambo",-7.103,109.3689,""],["Bendungan Moyo",-8.5236,117.4915,""],["Bendungan Mengkoang",-8.6255,117.6365,""],["Bendungan Mejagong",-7.1048,109.2888,""],["Bendungan Medani",-6.5396,110.9177,""],["Bendungan Mama",-8.6804,117.5755,""],["Bendungan Mahardo",-8.2458,112.5917,""],["Bendungan Koangbatu",-8.7207,122.13,""],["Bendungan Klobur",-7.0418,113.0193,""],["Bendungan Klesem",-7.0976,110.2883,""],["Bendungan Ketos",-6.8716,108.6086,""],["Bendungan Kesaming",-8.7572,117.9971,""],["Bendungan Keruju",-8.7581,117.9923,""],["Bendungan Kertawinangun",-6.8665,108.6203,""],["Bendungan Keplang",-6.8836,108.7114,""],["Bendungan Kedungsamak",-7.63278,109.65361,""],["Bendungan Kedungbelik",-7.1191,109.3294,""],["Bendungan Karanganyar",-7.106,109.2995,""],["Bendungan Kamun",-6.77972,108.16778,""],["Bendungan Kaliwadas",-7.0266,109.4849,""],["Bendungan Kalimeneng",-7.66194,109.89611,""],["Bendungan Kalimantong",-8.78422,116.90138,""],["Bendungan Kaligending",-7.58167,109.67583,""],["Bendungan Jangkok",-8.5344,116.2349,""],["Bendungan Ilegetang",-8.6378,122.2203,""],["Bendungan Ijura",-8.5656,122.032,""],["Bendungan Gede",-7.6122,112.4968,""],["Bendungan Gebong",-8.6088,116.2048,""],["Bendungan Gapit",-8.7944,117.934,""],["Bendungan Aeleba",-8.5649,122.046,""],["Bendungan Bening",-7.5462,111.7976,""],["Bendungan Blimbing",-7.1217,110.2684,""],["Bendungan Buinrare",-8.7687,117.8621,""],["Bendungan Burajeh",-7.0355,113.1137,""],["Bendungan Cariang",-6.71139,108.08861,""],["Bendungan Cibacang",-6.868,108.5059,""],["Bendungan Cileungsi",-6.86472,106.8825,""],["Bendungan Cipancuh",-6.49556,107.94083,""],["Bendungan Dawuhan",-7.595,111.6288,""],["Bendungan Dlingsing",-7.1003,110.2892,""],["Bendungan Agung",-6.844,108.6388,""],["Bendungan Dukuhjati",-7.0063,109.1856,""],["Bendungan Dumpil",-7.0762,111.1978,""],["Bendungan AiputikE",-8.4515,117.2275,""],["Bendungan Aji",-8.5296,117.4132,""],["Bendungan Ambit",-6.9256,108.6779,""],["Bendungan Baduk",-7.656,111.97,""],["Bendungan Bedegolan",-7.67583,109.77611,""],["Bendungan Bekacak",-7.6204,112.7704,""],["Bendungan Bendokaton",-6.5372,110.994,""],["Bendungan  Sigura Gura",2.548432,99.302643,""]];
+
+/* ============ DIREKTORI BENDUNGAN PUPR/BBS v7.1 (199 bendungan resmi) ============ */
+function openPuprModal(){
+  const m=document.getElementById('puprDirModal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+  renderPuprList('');
+}
+function closePuprModal(){
+  const m=document.getElementById('puprDirModal');
+  m.classList.add('hidden'); m.classList.remove('flex');
+}
+function renderPuprList(q){
+  const box=document.getElementById('puprDirList');
+  const lower=q.toLowerCase();
+  const list=PUPR_DAMS.filter(d=>d[0].toLowerCase().includes(lower)||(d[3]||'').toLowerCase().includes(lower));
+  document.getElementById('puprDirCount').textContent=list.length+' bendungan';
+  box.innerHTML=list.slice(0,220).map((d,i)=>`<button onclick="flyToPupr(${d[1]},${d[2]},'${d[0].replace(/'/g,"")}'  )" class="text-left px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 transition flex items-center gap-2"><i class="fa-solid fa-location-dot text-rose-400 text-xs w-4"></i><span class="text-[11px] font-mono text-slate-200">${d[0]}</span>${d[3]?`<span class="text-[9px] font-mono text-cyan-300 border border-cyan-800 rounded px-1">${d[3]}</span>`:''}</button>`).join('');
+}
+function flyToPupr(lat,lng,nama){
+  closePuprModal();
+  map.flyTo([lat,lng],14,{duration:1.4});
+  L.marker([lat,lng]).addTo(map).bindPopup('<b>'+nama+'</b><br>Sumber: Peta Resmi PUPR / Balai Teknis Bendungan').openPopup();
+  if(typeof showToast==='function') showToast('Menuju lokasi resmi: <b>'+nama+'</b> (PUPR/BBS)','info');
+}
+let puprLayer=null;
+function togglePuprLayer(){
+  if(puprLayer){ map.removeLayer(puprLayer); puprLayer=null; document.getElementById('btnPuprLayer').classList.remove('bg-cyan-600'); return; }
+  puprLayer=L.layerGroup(PUPR_DAMS.map(d=>L.circleMarker([d[1],d[2]],{radius:3,color:'#00f0ff',weight:1,fillColor:'#00f0ff',fillOpacity:0.6}).bindPopup('<b>'+d[0]+'</b><br>'+(d[3]||'')+'<br><span style="font-size:9px">Peta Resmi PUPR/BBS</span>'))).addTo(map);
+  document.getElementById('btnPuprLayer').classList.add('bg-cyan-600');
+  if(typeof showToast==='function') showToast('Lapisan <b>'+PUPR_DAMS.length+' bendungan PUPR</b> ditampilkan di peta','success');
+}
+
 const mapTileProviders = {
     street: {
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
@@ -13851,5 +14028,112 @@ window.onload = () => {
 };
     </script>
     <script src="dashboard_logic.js"></script>
+<script id="damDssV70Engine">
+/* ================= DAM DSS v7.0 ENGINE — POLA OPERASI PER BENDUNGAN + RISALAH STUDIO + GUARD HOOK ================= */
+
+// ====== 1. POLA OPERASI SPESIFIK PER BENDUNGAN (fungsi utama & karakter operasi) ======
+const POLA_OPERASI_SPEC = {
+  wonorejo:      { fungsi: "Irigasi (26.400 ha), pasokan air baku & mikrohidro",   karakter: "Waduk musiman Jawa Timur; pengisian Des–Mar, penyerapan Apr–Jun utk tanam padi",                 catatan: "Jaga ruang bebas 20% kapasitas saat puncak musim hujan; prioritaskan pemenuhan golongan air baku saat kemarau." },
+  karangkates:   { fungsi: "Pengendali banjir Brantas, irigasi & PLTA 3x35 MW",    karakter: "Multi-tujuan; deplesi lambat utk PLTA peaking + pengaturan banjir Kediri",                    catatan: "Puncakan inflow Jan–Feb; jaga TMA di bawah siaga 512 m; koordinasi rilis dgn Sutami–Selorejo–Lahor." },
+  selorejo:      { fungsi: "Irigasi 21.400 ha Konto–Brantas & PLTA 4,6 MW",         karakter: "Waduk tahunan; penampung aliran Lesti–Konto; operasi komplementer Karangkates",              catatan: "Serapan inflow vulkanis Kelut diperhatikan (lahar); tunda rilis saat banjir Ngantang." },
+  sampeanbaru:   { fungsi: "Irigasi Sampean (Bondowoso–Situbondo) & mikrohidro",    karakter: "Busur beton; waduk musiman; aliran cepat DAS vulkanis Ijen",                                 catatan: "Waspada sedimentasi tinggi (abu vulkanik); flushing pintu bawah saat inflow rendah." },
+  bening:        { fungsi: "Irigasi Widas & PLTMH 1,9 MW",                          karakter: "Waduk kecil musiman; operasi mengikuti pola tanam Bengawan Solo",                            catatan: "Koordinasi dgn pengaturan Bengawan Solo; ruang penampung banjir minimal, hindari keterlambatan rilis." },
+  klampis:       { fungsi: "Irigasi Madura ( Sampang )",                             karakter: "Waduk kecil musiman Madura; DAS pendek, respon cepat hujan",                                catatan: "Pemanfaatan penuh saat musim hujan; kritis kemarau — hemat pemakaian golongan irigasi." },
+  sengguruh:     { fungsi: "Pengatur aliran Brantas hulu & PLTA 28,9 MW",           karakter: "Bendung run-of-river; tma operasi sempit 291–294,5 m",                                      catatan: "Rilis mengikuti inflow; pelimpasan disiplin saat banjir; waspa endapan tambak garam utk PLTA." },
+  lahor:         { fungsi: "Irigasi & pasokan air baku Pagak–Malang Selatan",       karakter: "Waduk tahunan anak Brantas; penyimpan musim hujan utk kemarau",                             catatan: "Sinergi dgn Sengguruh; jaga fungsi pasokan air baku saat inflow < 8 m3/s." },
+  pondok:        { fungsi: "Irigasi Pamekasan (Madura)",                            karakter: "Waduk musiman Madura; satu-satunya waduk besar Pulau Madura",                               catatan: "Prioritas irigasi padi MT-1; cadangan 15% utk kebutuhan domestik." },
+  tilong:        { fungsi: "Irigasi Fatuleu–Kupang (~3.500 ha)",                    karakter: "Waduk tunggal NTT barat; musim hujan pendek (Jan–Mar)",                                     catatan: "Pengisian agresif Des–Mar; hama invasif (eceng) dipantau; efisiensi jaringan dijaga." },
+  saguling:      { fungsi: "PLTA peaking 700 MW & pengatur Citarum",               karakter: "Waduk harian peaking; deplesi siklus mingguan",                                             catatan: "Rilis mengikuti beban Jawa-Bali; koordinasi dgn Cirata & Jatiluhur; monitoring endapan terus (sedimentasi tinggi)." },
+  cirata:        { fungsi: "PLTA peaking 1008 MW",                                  karakter: "Waduk harian; buffer Saguling–Jatiluhur",                                                   catatan: "Waspadai blooming alga & endapan; opsikanpeaking malam; hub dgn aspek lingkungan waduk." },
+  jatiluhur:     { fungsi: "Irigasi 246.000 ha, air baku Jabodetabek & PLTA",      karakter: "Multi-tujuan terbesar Citarum; pengatur utama air baku ibu kota",                           catatan: "Jaga kapasitas serapan banjir Jan–Feb; rilis terukur air baku; instrumen usang diganti bertahap." },
+  jatigede:      { fungsi: "Irigasi 90.000 ha, pengendali banjir & PLTA 110 MW",    karakter: "Waduk serbaguna Cimanuk; penyimpan besar musim hujan",                                     catatan: "Operasi awal bertahap (impoundment); koordinasi dgn waduk lekuk hilir; pemantauan sesar Cimanuk." },
+  kedungombo:    { fungsi: "Irigasi, pasokan air baku & PLTA 1x4,4 MW",            karakter: "Waduk serbaguna Jratunseluna; penyimpan besar",                                             catatan: "Pengaturan air baku Semarang; waspada pencampuran inflow saat banjir." },
+  gajahmungkur:  { fungsi: "Irigasi 33.300 ha, banjir & PLTA 2x7,5 MW",            karakter: "Multi-guna Bengawan Solo hulu; pengendali banjir Wonogiri",                                 catatan: "Koordinasi dgn Waduk Pondok Bening utk banjir Widas; sedimentasi dipantau lewat bathimetri berkala." },
+  sempor:        { fungsi: "Irigasi 11.000 ha & pengendali banjir (Kebumen)",      karakter: "Waduk musiman; DAS Indroyudan kecil; banjir kilat Jratunseluna",                           catatan: "Waspada banjir bandang; ruang penampung dijaga 25% Des–Feb." },
+  wadaslintang:  { fungsi: "Irigasi 69.000 ha & PLTA 3x3,75 MW",                   karakter: "Waduk serbaguna Serayu; multi-tahun",                                                        catatan: "Sinergi banjir dgn bendung gerak hilir; sedimentasi tinggi (ipersekian). Periksa benturan dead storage." },
+  mrica:         { fungsi: "PLTA peaking 186 MW & irigasi Jratunseluna",           karakter: "Waduk harian PLTA; buffer pembangkit Jawa-Tengah",                                          catatan: "Rilis mengikuti kurva beban; koordinasi saguling-cirata utk peaking nasional." },
+  sermo:         { fungsi: "Irigasi & pasokan air baku (Kulon Progo)",              karakter: "Waduk kecil Menoreh; musiman",                                                              catatan: "Kapasitas terbatas; hemat rilis kemarau; pendangkalan dipercepat erosi DAS." },
+  batutegi:      { fungsi: "Irigasi 45.000 ha & PLTA 2x5,5 MW (Way Sekampung)",    karakter: "Waduk musiman Lampung; pengendali banjir Way Sekampung",                                   catatan: "Waspa banjir lahar hulu; koordinasi dgn pengelolaan air hulu DAS." },
+  kotopanjang:   { fungsi: "PLTA 3x28 MW (Koto Panjang)",                          karakter: "Waduk harian peaking Kampar Kanan",                                                         catatan: "Waspa konflik sosial & sedimentasi; rilis minimum ekologi diperhatikan." },
+  siguragura:    { fungsi: "PLTA 4x70 MW (bend atasan)",                            karakter: "Diversion weir dgn head 216 m; run-of-river",                                               catatan: "Rilis mengikuti inflow; penggerusan saluran tarik dipantau; pintu radial terawat." },
+  riamkanan:     { fungsi: "Irigasi, banjir & PLTA 2x3,5 MW (Martapura)",          karakter: "Waduk musiman Kalimantan Selatan; rawa gambut hulu",                                        catatan: "Waspa keasaman air gambut; koordinasi tambak hilir utk salinitas." },
+  bilibili:      { fungsi: "Irigasi 70.000 ha (Maros) & pengendali banjir",        karakter: "Waduk sejak 1999; sedimentasi tinggi Jeneberang",                                           catatan: "Sedimentasi parah — flush pintu bawah berkala; koordinasi reboisasi DAS Biraeng." },
+  bakaru:        { fungsi: "PLTA 2x35 MW (Sungai Kalii Brantas (indikatif))",      karakter: "Waduk peaking Sulawesi (Maros) — data indikatif",                                           catatan: "Periksa data aktual operator; operasi peaking dgn rilis minimum." },
+  palasari:      { fungsi: "Irigasi & pengendali banjir (Jembrana, Bali)",          karakter: "Waduk musiman Tukad Sabah",                                                                 catatan: "Waspa banjir Tukad; cadangan untuk subak Bali dipertahankan." },
+  batujai:       { fungsi: "Irigasi & pasokan air (Lombok Tengah)",                karakter: "Waduk kecil Pulau Lombok",                                                                  catatan: "Waspa gempa 2018 — inspeksi struktur pasca gempa; sedimentasi dipantau." },
+  mamak:         { fungsi: "Irigasi & pasokan air (NTT)",                           karakter: "Waduk musiman NTT; aliran pendek",                                                          catatan: "Pengisian cepat musim hujan; efisiensi jaringan utama." },
+  duriangkang:   { fungsi: "Pasokan air baku & irigasi (Bangka Belitung)",        karakter: "Waduk daratan Bangka; air hitam gambut",                                                     catatan: "Kualitas air gambut diperhatikan; penjernihan utk air baku." },
+  poso:          { fungsi: "PLTA 515 MW (run-of-river Poso-1)",                    karakter: "Diversion run-of-river; head 500+ m; saluran tarik panjang",                               catatan: "Rilis minimum ekologi Sungai Poso terjaga; waspa longsoran saluran tarik." },
+  kerinci:       { fungsi: "PLTA 350 MW (Merangin, head 310 m)",                   karakter: "Diversion Sesar Semangko Siulak; head 310 m",                                              catatan: "Waspa seismisitas Semangko; monitoring mikro-gempa & GFP terus." },
+  wayapu:        { fungsi: "PLTMH 0,68 MW & irigasi (Buru)",                       karakter: "Waduk kecil Maluku; data indikatif",                                                        catatan: "Data indikatif — verifikasi operator; multi-guna irigasi-mikrohidro." },
+  meninting:     { fungsi: "Irigasi & pasokan air (Lombok Barat)",                 karakter: "Waduk kecil pasca gempa Lombok 2018",                                                       catatan: "Waspa seismic PGA 0,5g; inspeksi pasca gempa; rehabilitasi instrumen." },
+  bintangbano:   { fungsi: "Irigasi & PLTM 6,3 MW (Sumbawa Barat)",                karakter: "Waduk Brang Rea Sumbawa; data indikatif",                                                   catatan: "Verifikasi data aktual; sedimentasi dipantau musim hujan." },
+  tiusuntuk:     { fungsi: "Irigasi (Sumbawa Barat, Brang Ene)",                   karakter: "Waduk tiu suntuk; data indikatif",                                                          catatan: "Verifikasi data aktual; DAS kering — hemat rilis kemarau." }
+};
+function polaSpecGet(key){ return POLA_OPERASI_SPEC[key] || null; }
+
+// kartu spesifikasi pola operasi per dam disisip ke section Pola Operasi
+function renderPolaSpec(){
+  const host = document.getElementById('polaSpecBody'); if(!host) return;
+  const d = currentDam; if(!d) return;
+  const s = polaSpecGet(d.id) || { fungsi:'—', karakter:'—', catatan:'—' };
+  host.innerHTML =
+    '<div class="p-2.5 rounded-xl bg-slate-950 border border-cyan-800/60"><div class="text-[9px] text-cyan-400 font-black mb-1">FUNGSI UTAMA</div><div class="text-[10.5px] text-slate-200 leading-relaxed">'+s.fungsi+'</div></div>'+
+    '<div class="p-2.5 rounded-xl bg-slate-950 border border-amber-800/60"><div class="text-[9px] text-amber-400 font-black mb-1">KARAKTER OPERASI</div><div class="text-[10.5px] text-slate-200 leading-relaxed">'+s.karakter+'</div></div>'+
+    '<div class="p-2.5 rounded-xl bg-slate-950 border border-emerald-800/60"><div class="text-[9px] text-emerald-400 font-black mb-1">CATATAN & SARAN OPERASI</div><div class="text-[10.5px] text-slate-200 leading-relaxed">'+s.catatan+'</div></div>';
+}
+
+// sisip host kartu spesifikasi ke dalam section pola operasi (sekali)
+(function(){
+  const hook = document.getElementById('polaRekomBody');
+  if (hook && !document.getElementById('polaSpecBody')){
+    const div = document.createElement('div');
+    div.id = 'polaSpecBody';
+    div.className = 'grid grid-cols-1 md:grid-cols-3 gap-2 mt-2';
+    hook.parentElement.appendChild(div);
+  }
+})();
+
+// wrap renderPolaOperasi agar kartu spec ikut dirender
+(function(){
+  const orig = window.renderPolaOperasi;
+  if (orig){
+    window.renderPolaOperasi = function(){ orig(); renderPolaSpec(); };
+  }
+})();
+
+// ====== 2. RISALAH TEKNIS, SARAN & KESIMPULAN — STUDIO PER BENDUNGAN ======
+function proRisalahBuild(){
+  const d = currentDam; if(!d) return null;
+  const vol = (d.normalVolume||0), capMW = (d.pltaCapacityMW||0);
+  const pga = (d.pgaDesign||0), f = d.faultName||'—';
+  const ikk = (typeof runHydroSimulation==='function') ? null : null;
+  return {
+    risalah: 'Bendungan <b class="text-cyan-300">'+(d.shortName||d.name)+'</b> ('+(d.province||'-')+') pada '+(d.river||'-')+' dimodelkan dgn parameter: TMA normal '+(d.normalElev||0)+' m dpl, siaga banjir '+(d.floodElev||0)+' m, MOL '+(d.lowElev||0)+' m; volume efektif ~'+(vol-(d.deadVolume||0)).toFixed(1)+' juta m3; inflow rata-rata '+(d.inflowAvg||0)+' m3/s dan puncak desain '+(d.inflowMax||0)+' m3/s. Kapasitas PLTA '+(capMW)+' MW dgn debit turbin maks '+(d.turbinMaxDischarge||0)+' m3/s; PGA desain '+pga+' g; sesar pengaruh: '+f+'.',
+    saran: '1) Selaraskan TMA dgn kurva pola operasi bulanan; sisakan ruang serap saat Des–Feb. 2) Rilis turbin mengikuti kurva beban; jaga rilis minimum ekologi. 3) Rutinkan inspeksi instrumen (piezometer, levelling, V-notch) dan uji pintu spillway pra-musim hujan. 4) Perbarui data bathimetri 2–3 tahun utk akurasi kurva kapasitas; perkuat patroli DAS hulu. '+(capMW>0?'5) Untuk PLTA '+capMW+' MW: hindari operasi di luar MOL—efisiensi dan umur turbin terjaga.':''),
+    kesimpulan: 'Secara umum operasi <b>'+(d.shortName||d.name)+'</b> dikelola dgn pola '+(polaSpecGet(d.id)? polaSpecGet(d.id).fungsi.toLowerCase() : 'multi-tujuan')+'. Kombinasi routing, stabilitas, sedimen, AHP-TOPSIS, Monte Carlo & CBA pada studio mengkonvergen: kendali TMA & disiplin pemeliharaan barrier utama keselamatan. Prioritas tindak lanjut: verifikasi data lapangan, waspada seismis '+(pga>=0.3?'TINGGI ('+pga+' g)':'moderat ('+pga+' g)')+', dan sinergi operasi antar waduk satu DAS.'
+  };
+}
+function proRisalahRender(){
+  const panel = document.getElementById('proRisalahPanel'); if(!panel) return;
+  const body = document.getElementById('proRisalahBody'); const lbl = document.getElementById('proRisalahDam');
+  const r = proRisalahBuild(); if(!r) return;
+  const d = currentDam || {name:'—'};
+  if (lbl) lbl.textContent = (d.shortName||d.name);
+  body.innerHTML =
+    '<div class="p-2.5 rounded-xl bg-slate-950/80 border border-cyan-700/50"><div class="text-[9px] text-cyan-400 font-black mb-1"><i class="fa-solid fa-file-contract mr-1"></i> RISALAH TEKNIS</div><div class="text-[10px] text-slate-200 leading-relaxed">'+r.risalah+'</div></div>'+
+    '<div class="p-2.5 rounded-xl bg-slate-950/80 border border-amber-700/50"><div class="text-[9px] text-amber-400 font-black mb-1"><i class="fa-solid fa-lightbulb mr-1"></i> SARAN TEKNIS</div><div class="text-[10px] text-slate-200 leading-relaxed">'+r.saran+'</div></div>'+
+    '<div class="p-2.5 rounded-xl bg-slate-950/80 border border-emerald-700/50"><div class="text-[9px] text-emerald-400 font-black mb-1"><i class="fa-solid fa-clipboard-check mr-1"></i> KESIMPULAN</div><div class="text-[10px] text-slate-200 leading-relaxed">'+r.kesimpulan+'</div></div>';
+  panel.classList.remove('hidden');
+}
+(function(){
+  // tampilkan risalah tiap studio dibuka & saat proRun* selesai
+  const wrap = (fn)=>{ const o=window[fn]; if(typeof o==='function'){ window[fn]=function(){ const r=o.apply(this,arguments); try{proRisalahRender();}catch(e){} return r; }; } };
+  ['proRunRouting','proRunStability','proRunSediment','proRunAhp','proRunMC','proRunCBA'].forEach(wrap);
+  const osp = window.openStudioPro;
+  if (osp){ window.openStudioPro = function(){ const r=osp.apply(this,arguments); try{proRisalahRender();}catch(e){} return r; }; }
+})();
+
+</script>
 </body>
 </html>
